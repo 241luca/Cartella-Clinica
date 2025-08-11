@@ -81,12 +81,6 @@ export class TherapyController {
               description: true,
             }
           },
-          prescribedBy: {
-            select: {
-              firstName: true,
-              lastName: true,
-            }
-          },
           sessions: {
             select: {
               id: true,
