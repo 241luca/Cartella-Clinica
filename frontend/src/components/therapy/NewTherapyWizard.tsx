@@ -29,6 +29,7 @@ import TecalabForm from '../therapy-forms/TecalabForm';
 // Import servizi
 import { therapyService } from '../../services/therapyService';
 import { patientService } from '../../services/patientService';
+import PatientSearchInput from './PatientSearchInput';
 
 interface NewTherapyWizardProps {
   isOpen: boolean;
@@ -61,7 +62,11 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
   clinicalRecordId,
   onSuccess
 }) => {
-  const [currentStep, setCurrentStep] = useState(1);
+  // Se non c'è patientId, aggiungiamo uno step per la selezione paziente
+  const needsPatientSelection = !patientId && !clinicalRecordId;
+  const [currentStep, setCurrentStep] = useState(needsPatientSelection ? 0 : 1);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedTherapyType, setSelectedTherapyType] = useState<TherapyType | null>(null);
   const [therapyTypes, setTherapyTypes] = useState<TherapyType[]>([]);
@@ -103,6 +108,14 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
 
   // Gestione step
   const nextStep = () => {
+    if (currentStep === 0) {
+      if (!selectedPatient || !selectedRecord) {
+        setError('Seleziona un paziente e una cartella clinica');
+        return;
+      }
+      // Imposta i dati selezionati
+      setFormData({ ...formData, clinicalRecordId: selectedRecord.id });
+    }
     if (currentStep === 1 && !selectedCategory) {
       setError('Seleziona una categoria');
       return;
@@ -129,7 +142,7 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       const dataToSave = {
         ...formData,
         therapyTypeId: selectedTherapyType?.id,
-        clinicalRecordId: clinicalRecordId || formData.clinicalRecordId,
+        clinicalRecordId: clinicalRecordId || selectedRecord?.id || formData.clinicalRecordId,
       };
 
       const response = await therapyService.create(dataToSave);
@@ -215,7 +228,7 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
             <div>
               <h2 className="text-2xl font-bold">Nuova Terapia</h2>
               <p className="text-blue-100 mt-1">
-                Passo {currentStep} di 4
+                Passo {needsPatientSelection ? currentStep + 1 : currentStep} di {needsPatientSelection ? 5 : 4}
               </p>
             </div>
             <button
@@ -228,7 +241,7 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
 
           {/* Progress bar */}
           <div className="mt-6 flex space-x-2">
-            {[1, 2, 3, 4].map((step) => (
+            {(needsPatientSelection ? [0, 1, 2, 3, 4] : [1, 2, 3, 4]).map((step) => (
               <div
                 key={step}
                 className={`flex-1 h-2 rounded-full transition-colors ${
@@ -244,6 +257,19 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
               {error}
+            </div>
+          )}
+
+          {/* Step 0: Selezione Paziente (se necessario) */}
+          {currentStep === 0 && needsPatientSelection && (
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Seleziona paziente e cartella clinica</h3>
+              <PatientSearchInput
+                onPatientSelect={(patient) => setSelectedPatient(patient)}
+                onRecordSelect={(record) => setSelectedRecord(record)}
+                selectedPatient={selectedPatient}
+                selectedRecord={selectedRecord}
+              />
             </div>
           )}
 
@@ -421,9 +447,9 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
         <div className="border-t px-6 py-4 flex justify-between">
           <button
             onClick={prevStep}
-            disabled={currentStep === 1}
+            disabled={currentStep === (needsPatientSelection ? 0 : 1)}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              currentStep === 1
+              currentStep === (needsPatientSelection ? 0 : 1)
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
