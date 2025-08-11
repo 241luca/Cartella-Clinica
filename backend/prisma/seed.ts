@@ -445,8 +445,8 @@ async function main() {
   const today = new Date();
   
   for (const therapy of therapies) {
-    if (therapy.status === 'IN_PROGRESS' || therapy.status === 'SCHEDULED') {
-      const therapist = therapists[sessionsCreated % 2];
+    // Crea sessioni per TUTTE le terapie, non solo quelle IN_PROGRESS
+    const therapist = therapists[sessionsCreated % 2];
       
       // Crea 3-5 sedute future per ogni terapia attiva
       const numSessions = Math.floor(Math.random() * 3) + 3;
@@ -471,7 +471,6 @@ async function main() {
         });
         sessionsCreated++;
       }
-    }
   }
 
   console.log(`✅ ${sessionsCreated} Sedute create`);

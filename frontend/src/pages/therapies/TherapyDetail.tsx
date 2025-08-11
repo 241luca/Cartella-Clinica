@@ -185,8 +185,8 @@ const TherapyDetail: React.FC = () => {
   const progressPercentage = therapy && therapy.prescribedSessions > 0 
     ? ((therapy.completedSessions || 0) / therapy.prescribedSessions) * 100 
     : 0;
-  const completedSessions = sessions && Array.isArray(sessions) ? sessions.filter(s => s.completed) : [];
-  const nextSession = sessions && Array.isArray(sessions) ? sessions.find(s => !s.completed) : null;
+  const completedSessions = sessions && Array.isArray(sessions) ? sessions.filter(s => s.status === 'COMPLETED') : [];
+  const nextSession = sessions && Array.isArray(sessions) ? sessions.find(s => s.status === 'SCHEDULED') : null;
 
   return (
     <AppLayout>
@@ -375,7 +375,7 @@ const TherapyDetail: React.FC = () => {
                           Seduta #{nextSession.sessionNumber}
                         </p>
                         <p className="text-sm text-purple-700 mt-1">
-                          {nextSession.date ? format(new Date(nextSession.date), 'EEEE dd MMMM', { locale: it }) : 'N/D'}
+                          {nextSession.sessionDate ? format(new Date(nextSession.sessionDate), 'EEEE dd MMMM', { locale: it }) : 'N/D'}
                         </p>
                       </div>
                     </div>
@@ -432,7 +432,7 @@ const TherapyDetail: React.FC = () => {
                         <div
                           key={session.id}
                           className={`border rounded-lg p-4 ${
-                            session.completed 
+                            session.status === 'COMPLETED' 
                               ? 'bg-gray-50 border-gray-200' 
                               : 'bg-white border-purple-200 hover:border-purple-300'
                           }`}
@@ -441,7 +441,7 @@ const TherapyDetail: React.FC = () => {
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
                                 <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                                  session.completed 
+                                  session.status === 'COMPLETED' 
                                     ? 'bg-green-100 text-green-700' 
                                     : 'bg-purple-100 text-purple-700'
                                 }`}>
@@ -459,12 +459,12 @@ const TherapyDetail: React.FC = () => {
                                     )}
                                   </div>
                                   <p className="text-sm text-gray-500">
-                                    {session.date ? format(new Date(session.date), 'EEEE dd MMMM yyyy', { locale: it }) : 'N/D'}
+                                    {session.sessionDate ? format(new Date(session.sessionDate), 'EEEE dd MMMM yyyy', { locale: it }) : 'N/D'}
                                   </p>
                                 </div>
                               </div>
                               
-                              {session.completed && (
+                              {session.status === 'COMPLETED' && (
                                 <div className="ml-11 space-y-2">
                                   <div className="flex items-center gap-4 text-sm">
                                     <div>
@@ -497,7 +497,7 @@ const TherapyDetail: React.FC = () => {
                             </div>
                             
                             <div>
-                              {session.completed ? (
+                              {session.status === 'COMPLETED' ? (
                                 <CheckCircle className="w-5 h-5 text-green-500" />
                               ) : (
                                 <button
