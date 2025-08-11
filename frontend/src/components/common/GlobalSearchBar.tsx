@@ -130,12 +130,22 @@ export const GlobalSearchBar: React.FC = () => {
       const patients = patientsResponse?.data?.data || patientsResponse?.data || [];
       
       patients.slice(0, 5).forEach((patient: any) => {
+        // Formatta la data di nascita
+        const birthDate = patient.birthDate ? 
+          format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it }) : 
+          '';
+        
+        // Calcola l'età
+        const age = patient.birthDate ? calculateAge(patient.birthDate) : null;
+        
         searchResults.push({
           id: patient.id,
           type: 'patient',
           title: `${patient.lastName} ${patient.firstName}`,
-          subtitle: `CF: ${patient.fiscalCode}`,
-          meta: `${calculateAge(patient.birthDate)} anni`,
+          subtitle: birthDate ? 
+            `Nato/a il ${birthDate}${age !== null ? ` (${age} anni)` : ''}` : 
+            'Data di nascita non disponibile',
+          meta: `CF: ${patient.fiscalCode} • ${patient.city || 'Città non specificata'}`,
           url: `/patients/${patient.id}`
         });
       });
@@ -300,11 +310,11 @@ export const GlobalSearchBar: React.FC = () => {
                     {getIcon(result.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-1">
                       <p className="font-medium text-gray-900 truncate">
                         {result.title}
                       </p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
+                      <span className={`text-xs px-2 py-1 rounded-full ml-2 ${
                         result.type === 'patient' ? 'bg-blue-100 text-blue-700' :
                         result.type === 'record' ? 'bg-green-100 text-green-700' :
                         'bg-purple-100 text-purple-700'
@@ -312,11 +322,11 @@ export const GlobalSearchBar: React.FC = () => {
                         {getTypeLabel(result.type)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 truncate">
+                    <p className="text-sm text-gray-700 font-medium">
                       {result.subtitle}
                     </p>
                     {result.meta && (
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         {result.meta}
                       </p>
                     )}
