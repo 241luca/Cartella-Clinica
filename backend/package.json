@@ -11,6 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "seed:complete": "ts-node prisma/seed-complete.ts",
+    "db:verify": "ts-node prisma/verify-data.ts",
     "seed:users": "ts-node src/scripts/seedUsers.ts",
     "test": "jest",
     "test:watch": "jest --watch",
