@@ -4,15 +4,31 @@ import { addDays, subDays, subMonths } from 'date-fns';
 
 const prisma = new PrismaClient();
 
-// Helper per generare codice fiscale fittizio
+// Helper per generare codice fiscale fittizio UNICO
 function generateFiscalCode(firstName: string, lastName: string, index: number): string {
-  const letters = lastName.substring(0, 3).toUpperCase();
-  const firstLetters = firstName.substring(0, 3).toUpperCase();
-  const year = (1940 + index * 2).toString().substring(2);
+  // Prendi 3 consonanti del cognome (o lettere se non ci sono abbastanza consonanti)
+  const lastNameCode = lastName.replace(/[aeiou]/gi, '').substring(0, 3).toUpperCase().padEnd(3, lastName.toUpperCase());
+  // Prendi 3 consonanti del nome
+  const firstNameCode = firstName.replace(/[aeiou]/gi, '').substring(0, 3).toUpperCase().padEnd(3, firstName.toUpperCase());
+  
+  // Anno di nascita (ultimi 2 cifre)
+  const year = (40 + Math.floor(index / 2)).toString().padStart(2, '0');
+  
+  // Mese di nascita (lettere codificate)
   const months = ['A', 'B', 'C', 'D', 'E', 'H', 'L', 'M', 'P', 'R', 'S', 'T'];
   const month = months[index % 12];
+  
+  // Giorno di nascita (per donne si aggiunge 40)
   const day = (10 + (index % 20)).toString().padStart(2, '0');
-  return `${letters}${firstLetters}${year}${month}${day}H501Z`;
+  
+  // Codice del comune (H501 = Roma, facciamo variare l'ultimo carattere)
+  const comuneCode = `H50${index % 10}`;
+  
+  // Carattere di controllo (simulato con lettere diverse per ogni paziente)
+  const controlChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const controlChar = controlChars[index % 26];
+  
+  return `${lastNameCode}${firstNameCode}${year}${month}${day}${comuneCode}${controlChar}`;
 }
 
 // Lista di nomi e cognomi italiani
@@ -188,85 +204,150 @@ async function main() {
   console.log('Creazione tipi di terapia...');
 
   const therapyTypes = [
-    {
-      code: 'LASER_YAG',
-      name: 'Laser YAG 1064',
-      category: 'INSTRUMENTAL',
-      description: 'Laserterapia YAG ad alta potenza',
-      defaultDuration: 20,
-      defaultSessions: 10,
-      isActive: true,
-    },
-    {
-      code: 'TECAR',
-      name: 'Tecarterapia',
-      category: 'INSTRUMENTAL',
-      description: 'Trasferimento Energetico Capacitivo Resistivo',
-      defaultDuration: 30,
-      defaultSessions: 8,
-      isActive: true,
-    },
+    // TERAPIE STRUMENTALI
     {
       code: 'MAGNETO',
       name: 'Magnetoterapia',
-      category: 'INSTRUMENTAL',
+      category: 'STRUMENTALE',
       description: 'Terapia con campi magnetici pulsati',
       defaultDuration: 30,
       defaultSessions: 15,
+      requiresDoctor: false,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    {
+      code: 'LASER_YAG',
+      name: 'Laser YAG 145',
+      category: 'STRUMENTALE',
+      description: 'Laserterapia YAG ad alta potenza',
+      defaultDuration: 20,
+      defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    {
+      code: 'LASER_810_980',
+      name: 'Laser 810+980',
+      category: 'STRUMENTALE',
+      description: 'Laser a doppia lunghezza d\'onda',
+      defaultDuration: 20,
+      defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    {
+      code: 'LASER_SCAN',
+      name: 'Laser Scanner',
+      category: 'STRUMENTALE',
+      description: 'Laser scanner per aree estese',
+      defaultDuration: 25,
+      defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
       isActive: true,
     },
     {
       code: 'TENS',
       name: 'TENS',
-      category: 'INSTRUMENTAL',
+      category: 'STRUMENTALE',
       description: 'Stimolazione Elettrica Nervosa Transcutanea',
       defaultDuration: 30,
       defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
       isActive: true,
     },
     {
-      code: 'ULTRA',
+      code: 'ULTRASUONI',
       name: 'Ultrasuoni',
-      category: 'INSTRUMENTAL',
+      category: 'STRUMENTALE',
       description: 'Ultrasuonoterapia',
       defaultDuration: 15,
       defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
       isActive: true,
     },
     {
-      code: 'KINESI',
-      name: 'Kinesiterapia',
-      category: 'MANUAL',
-      description: 'Terapia del movimento',
-      defaultDuration: 45,
+      code: 'ELETTROSTIM',
+      name: 'Elettrostimolazione',
+      category: 'STRUMENTALE',
+      description: 'Elettrostimolazione muscolare',
+      defaultDuration: 30,
       defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
       isActive: true,
     },
     {
-      code: 'MASSO',
+      code: 'TECAR',
+      name: 'Tecarsin',
+      category: 'STRUMENTALE',
+      description: 'Tecarterapia capacitiva e resistiva',
+      defaultDuration: 30,
+      defaultSessions: 8,
+      requiresDoctor: false,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    // TERAPIE MANUALI
+    {
+      code: 'MASSOTERAPIA',
       name: 'Massoterapia',
-      category: 'MANUAL',
+      category: 'MANUALE',
       description: 'Massaggio terapeutico',
       defaultDuration: 30,
       defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: false,
       isActive: true,
     },
     {
-      code: 'IDRO',
-      name: 'Idrokinesiterapia',
-      category: 'REHABILITATION',
-      description: 'Riabilitazione in acqua',
+      code: 'MOBILIZZAZIONI',
+      name: 'Mobilizzazioni',
+      category: 'MANUALE',
+      description: 'Mobilizzazioni articolari',
       defaultDuration: 45,
+      defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: false,
+      isActive: true,
+    },
+    {
+      code: 'LIMFATERAPY',
+      name: 'Linfaterapy',
+      category: 'MANUALE',
+      description: 'Linfodrenaggio e pressoterapia',
+      defaultDuration: 45,
+      defaultSessions: 10,
+      requiresDoctor: false,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    // TERAPIE SPECIALI
+    {
+      code: 'SIT',
+      name: 'SIT',
+      category: 'SPECIALE',
+      description: 'Sistema Infiltrativo Transcutaneo',
+      defaultDuration: 30,
+      defaultSessions: 5,
+      requiresDoctor: true,
+      requiresEquipment: true,
+      isActive: true,
+    },
+    {
+      code: 'TECALAB',
+      name: 'Tecalab',
+      category: 'SPECIALE',
+      description: 'Programma riabilitativo integrato',
+      defaultDuration: 60,
       defaultSessions: 20,
-      isActive: true,
-    },
-    {
-      code: 'POSTURA',
-      name: 'Ginnastica Posturale',
-      category: 'REHABILITATION',
-      description: 'Rieducazione posturale globale',
-      defaultDuration: 45,
-      defaultSessions: 15,
+      requiresDoctor: false,
+      requiresEquipment: true,
       isActive: true,
     },
   ];

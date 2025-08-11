@@ -129,31 +129,54 @@ const PatientDetail: React.FC = () => {
       setLoading(true);
       
       // Carica dati paziente
-      const [patientRes, recordsRes, therapiesRes, vitalsRes] = await Promise.all([
-        api.get(`/patients/${id}`),
-        api.get(`/patients/${id}/clinical-records`).catch(() => ({ data: { data: [] } })),
-        api.get(`/patients/${id}/therapies`).catch(() => ({ data: { data: [] } })),
-        api.get(`/patients/${id}/vital-signs`).catch(() => ({ data: { data: [] } })),
-      ]);
-
-      if (patientRes.data.success) {
+      const patientRes = await api.get(`/patients/${id}`);
+      console.log('Patient API Response:', patientRes.data);
+      
+      if (patientRes.data.success && patientRes.data.data) {
         setPatient(patientRes.data.data);
+        
+        // Carica cartelle cliniche se il paziente esiste
+        try {
+          const recordsRes = await api.get(`/patients/${id}/clinical-records`);
+          console.log('Clinical Records Response:', recordsRes.data);
+          setClinicalRecords(recordsRes.data.data || []);
+        } catch (err) {
+          console.log('No clinical records found');
+          setClinicalRecords([]);
+        }
+        
+        // Carica terapie
+        try {
+          const therapiesRes = await api.get(`/therapies/clinical-record/${id}`);
+          console.log('Therapies Response:', therapiesRes.data);
+          setTherapies(therapiesRes.data.data?.therapies || []);
+        } catch (err) {
+          console.log('No therapies found');
+          setTherapies([]);
+        }
+        
+        // I vital signs potrebbero non esistere ancora come endpoint
+        setVitalSigns([]);
+        
+        // Genera timeline con i dati reali
+        generateTimeline(
+          clinicalRecords,
+          therapies,
+          []
+        );
+      } else {
+        // Se il paziente non esiste nel DB, usa mock
+        console.log('Patient not found in DB, using mock data');
+        setPatient(getMockPatient());
+        setClinicalRecords(getMockClinicalRecords());
+        setTherapies(getMockTherapies());
+        setVitalSigns(getMockVitalSigns());
+        generateTimeline(getMockClinicalRecords(), getMockTherapies(), getMockVitalSigns());
       }
-      
-      setClinicalRecords(recordsRes.data.data || []);
-      setTherapies(therapiesRes.data.data || []);
-      setVitalSigns(vitalsRes.data.data || []);
-      
-      // Genera timeline
-      generateTimeline(
-        recordsRes.data.data || [],
-        therapiesRes.data.data || [],
-        vitalsRes.data.data || []
-      );
       
     } catch (error) {
       console.error('Errore caricamento dati paziente:', error);
-      // Usa dati mock se l'API fallisce
+      // Usa dati mock se l'API fallisce completamente
       setPatient(getMockPatient());
       setClinicalRecords(getMockClinicalRecords());
       setTherapies(getMockTherapies());
