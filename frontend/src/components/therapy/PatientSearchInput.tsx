@@ -94,17 +94,9 @@ export const PatientSearchInput: React.FC<PatientSearchInputProps> = ({
       const response = await patientService.getAll({ search: searchQuery });
       const patientsData = response.data?.data || response.data || [];
       
-      // Filtra i risultati localmente se necessario
-      const filtered = patientsData.filter((p: Patient) => {
-        const searchLower = searchQuery.toLowerCase();
-        return (
-          p.firstName.toLowerCase().includes(searchLower) ||
-          p.lastName.toLowerCase().includes(searchLower) ||
-          p.fiscalCode.toLowerCase().includes(searchLower)
-        );
-      });
-      
-      setPatients(filtered.slice(0, 10)); // Limita a 10 risultati
+      // NON filtrare ulteriormente - il backend dovrebbe già filtrare correttamente
+      // Limitiamo solo il numero di risultati visualizzati
+      setPatients(patientsData.slice(0, 10));
       setShowPatientDropdown(true);
     } catch (error) {
       console.error('Errore ricerca pazienti:', error);
