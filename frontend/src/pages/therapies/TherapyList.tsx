@@ -29,15 +29,15 @@ import NewTherapyWizard from '../../components/therapy/NewTherapyWizard';
 
 interface TherapyWithDetails {
   id: string;
-  patient: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    fiscalCode: string;
-  };
   clinicalRecord: {
     id: string;
     recordNumber: string;
+    patient: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      fiscalCode: string;
+    };
   };
   therapyType: {
     id: string;
@@ -90,6 +90,11 @@ const TherapyList: React.FC = () => {
       // Il servizio restituisce response.data
       if (response.data) {
         if (response.data.success) {
+          console.log('Therapies data:', response.data.data);
+          // Verifica struttura delle terapie
+          if (response.data.data && response.data.data.length > 0) {
+            console.log('Prima terapia:', response.data.data[0]);
+          }
           setTherapies(response.data.data || []);
           if (response.data.pagination) {
             setTotalPages(response.data.pagination.pages || 1);
@@ -111,41 +116,6 @@ const TherapyList: React.FC = () => {
     }
   };
 
-  const getMockTherapies = (): TherapyWithDetails[] => {
-    const mockTherapies: TherapyWithDetails[] = [];
-    const patients = ['Mario Rossi', 'Laura Bianchi', 'Giuseppe Verdi', 'Anna Neri'];
-    const therapyTypes = ['Fisioterapia', 'Laserterapia', 'Tecarterapia', 'Ultrasuoni'];
-    const statuses = ['ACTIVE', 'COMPLETED', 'SUSPENDED', 'ACTIVE'];
-
-    for (let i = 0; i < 12; i++) {
-      const [firstName, lastName] = patients[i % patients.length].split(' ');
-      mockTherapies.push({
-        id: `therapy-${i + 1}`,
-        patient: {
-          id: `patient-${i + 1}`,
-          firstName,
-          lastName,
-          fiscalCode: `RSSMRA${85 - i}M01H501Z`,
-        },
-        clinicalRecord: {
-          id: `record-${i + 1}`,
-          recordNumber: `CR-2025-${1000 + i}`,
-        },
-        therapyType: {
-          id: `type-${i + 1}`,
-          name: therapyTypes[i % therapyTypes.length],
-          category: 'PHYSICAL',
-        },
-        status: statuses[i % statuses.length],
-        prescribedSessions: 10 + (i % 5) * 2,
-        completedSessions: Math.floor((10 + (i % 5) * 2) * (0.3 + (i % 7) * 0.1)),
-        startDate: new Date(Date.now() - i * 86400000 * 7).toISOString(),
-        endDate: i % 3 === 0 ? new Date(Date.now() + i * 86400000 * 3).toISOString() : undefined,
-        notes: i % 2 === 0 ? 'Paziente risponde bene al trattamento' : undefined,
-      });
-    }
-    return mockTherapies;
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -340,6 +310,13 @@ const TherapyList: React.FC = () => {
             {therapies.map((therapy) => {
               const progressPercentage = (therapy.completedSessions / therapy.prescribedSessions) * 100;
               
+              // Verifica che esistano i dati del paziente
+              const patient = therapy.clinicalRecord?.patient;
+              if (!patient) {
+                console.warn('Terapia senza dati paziente:', therapy);
+                return null;
+              }
+              
               return (
                 <div
                   key={therapy.id}
@@ -349,13 +326,13 @@ const TherapyList: React.FC = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-medium">
-                        {therapy.patient.firstName.charAt(0)}{therapy.patient.lastName.charAt(0)}
+                        {patient.firstName?.charAt(0) || '?'}{patient.lastName?.charAt(0) || '?'}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 text-sm">
-                          {therapy.patient.firstName} {therapy.patient.lastName}
+                          {patient.firstName || 'Nome'} {patient.lastName || 'Cognome'}
                         </p>
-                        <p className="text-xs text-gray-500">{therapy.patient.fiscalCode}</p>
+                        <p className="text-xs text-gray-500">{patient.fiscalCode || 'CF non disponibile'}</p>
                       </div>
                     </div>
                     {getStatusBadge(therapy.status)}
@@ -364,7 +341,7 @@ const TherapyList: React.FC = () => {
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Tipo Terapia</p>
-                      <p className="text-sm font-medium text-gray-900">{therapy.therapyType.name}</p>
+                      <p className="text-sm font-medium text-gray-900">{therapy.therapyType?.name || 'Non specificato'}</p>
                     </div>
 
                     <div>
@@ -389,7 +366,7 @@ const TherapyList: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <FileText className="w-3 h-3" />
-                        {therapy.clinicalRecord.recordNumber}
+                        {therapy.clinicalRecord?.recordNumber || 'N/D'}
                       </div>
                     </div>
                   </div>
