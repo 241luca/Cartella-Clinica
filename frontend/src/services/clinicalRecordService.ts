@@ -58,7 +58,7 @@ class ClinicalRecordService {
   }
 
   async getByPatient(patientId: string) {
-    return api.get('/clinical-records', { params: { patientId } });
+    return api.get(`/patients/${patientId}/clinical-records`);
   }
 
   async create(data: CreateClinicalRecordDto) {

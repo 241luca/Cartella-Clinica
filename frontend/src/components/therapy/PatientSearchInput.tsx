@@ -124,15 +124,33 @@ export const PatientSearchInput: React.FC<PatientSearchInputProps> = ({
     setLoadingRecords(true);
     try {
       const response = await clinicalRecordService.getByPatient(patient.id);
-      const records = (response.data?.data || response.data || []).filter((r: ClinicalRecord) => r.status === 'OPEN');
-      setClinicalRecords(records);
+      
+      // Gestisci diversi formati di risposta
+      let records = [];
+      if (response.data?.success && response.data?.data) {
+        records = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        records = response.data;
+      } else if (response.data) {
+        records = response.data;
+      }
+      
+      // Filtra solo le cartelle aperte (isActive o status === 'OPEN')
+      const openRecords = records.filter((r: any) => 
+        r.isActive === true || r.status === 'OPEN' || r.status === 'open'
+      );
+      
+      setClinicalRecords(openRecords);
       
       // Se c'è solo una cartella aperta, selezionala automaticamente
-      if (records.length === 1) {
-        setSelectedRecord(records[0]);
-        onRecordSelect(records[0]);
-      } else if (records.length > 1) {
+      if (openRecords.length === 1) {
+        setSelectedRecord(openRecords[0]);
+        onRecordSelect(openRecords[0]);
+      } else if (openRecords.length > 1) {
         setShowRecordDropdown(true);
+      } else if (openRecords.length === 0 && records.length > 0) {
+        // Se ci sono cartelle ma nessuna aperta, mostra comunque
+        setClinicalRecords(records);
       }
     } catch (error) {
       console.error('Errore caricamento cartelle:', error);
@@ -322,14 +340,14 @@ export const PatientSearchInput: React.FC<PatientSearchInputProps> = ({
                     </div>
                     <div className="text-right">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        record.status === 'OPEN' 
+                        record.isActive === true || record.status === 'OPEN' 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {record.status === 'OPEN' ? 'Aperta' : 'Chiusa'}
+                        {record.isActive === true || record.status === 'OPEN' ? 'Aperta' : 'Chiusa'}
                       </span>
                       <p className="text-xs text-gray-400 mt-1">
-                        Dal {format(new Date(record.acceptanceDate), 'dd/MM/yyyy')}
+                        Dal {format(new Date(record.acceptanceDate || record.createdAt), 'dd/MM/yyyy')}
                       </p>
                     </div>
                   </div>

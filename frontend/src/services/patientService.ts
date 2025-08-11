@@ -78,6 +78,10 @@ class PatientService {
     }
   }
 
+  async search(query: string) {
+    return this.getAll({ search: query, limit: 20 });
+  }
+
   async getById(id: string) {
     try {
       const response = await api.get(`/patients/${id}`);
