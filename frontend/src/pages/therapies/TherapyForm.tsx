@@ -17,9 +17,9 @@ import {
   Search,
   X
 } from 'lucide-react';
-import therapyService from '../../services/therapyService';
-import patientService from '../../services/patientService';
-import clinicalRecordService from '../../services/clinicalRecordService';
+import { therapyService } from '../../services/therapyService';
+import { patientService } from '../../services/patientService';
+import { clinicalRecordService } from '../../services/clinicalRecordService';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';

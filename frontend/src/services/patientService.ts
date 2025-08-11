@@ -274,3 +274,4 @@ class PatientService {
 const patientService = new PatientService();
 
 export { patientService };
+export default patientService;
