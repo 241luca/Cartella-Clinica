@@ -126,30 +126,26 @@ const TherapyList: React.FC = () => {
     switch (status) {
       case 'ACTIVE':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-            <Play className="w-3 h-3" />
-            In Corso
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50" title="In Corso">
+            <Play className="w-4 h-4 text-green-600" />
           </span>
         );
       case 'COMPLETED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-            <CheckCircle className="w-3 h-3" />
-            Completata
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-50" title="Completata">
+            <CheckCircle className="w-4 h-4 text-blue-600" />
           </span>
         );
       case 'SUSPENDED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
-            <PauseCircle className="w-3 h-3" />
-            Sospesa
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50" title="Sospesa">
+            <PauseCircle className="w-4 h-4 text-amber-600" />
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-            <XCircle className="w-3 h-3" />
-            Annullata
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100" title="Annullata">
+            <XCircle className="w-4 h-4 text-gray-600" />
           </span>
         );
     }
