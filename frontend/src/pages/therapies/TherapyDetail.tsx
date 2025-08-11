@@ -137,20 +137,43 @@ const TherapyDetail: React.FC = () => {
 
   const getMockSessions = () => {
     const sessions = [];
+    
+    // Array di configurazioni realistiche per diverse terapie
+    const therapyConfigs = [
+      { type: 'TENS', intensity: '60 mA', frequency: '100 Hz', duration: '20 min' },
+      { type: 'Laser Yag', intensity: '3.5 W', frequency: '1500 Hz', duration: '15 min' },
+      { type: 'Tecarterapia', intensity: 'Capacitivo 60%', frequency: '470 kHz', duration: '30 min' },
+      { type: 'Ultrasuoni', intensity: '1.5 W/cm²', frequency: '1 MHz', duration: '10 min' },
+      { type: 'Magnetoterapia', intensity: '50 Gauss', frequency: '75 Hz', duration: '30 min' },
+      { type: 'Massoterapia', intensity: 'Media pressione', frequency: 'N/A', duration: '45 min' },
+      { type: 'Ionoforesi', intensity: '4 mA', frequency: 'Continua', duration: '20 min' },
+      { type: 'Infrarossi', intensity: '150 W', frequency: 'N/A', duration: '15 min' },
+      { type: 'Elettrostimolazione', intensity: '35 mA', frequency: '50 Hz', duration: '25 min' },
+      { type: 'Crioterapia', intensity: '-5°C', frequency: 'N/A', duration: '10 min' }
+    ];
+    
     for (let i = 1; i <= 10; i++) {
+      const config = therapyConfigs[i - 1];
       sessions.push({
         id: `session-${i}`,
         sessionNumber: i,
         date: new Date(Date.now() - (10 - i) * 3 * 86400000).toISOString(),
         completed: i <= 4,
         duration: 45,
+        therapyType: config.type,
         therapist: {
-          firstName: 'Anna',
-          lastName: 'Verdi',
+          firstName: i % 2 === 0 ? 'Anna' : 'Marco',
+          lastName: i % 2 === 0 ? 'Verdi' : 'Bianchi',
         },
-        vasScoreBefore: i <= 4 ? 7 - Math.floor(i / 2) : null,
-        vasScoreAfter: i <= 4 ? 5 - Math.floor(i / 2) : null,
-        notes: i <= 4 ? `Seduta ${i}: Buon progresso, paziente collaborativo` : null,
+        vasScoreBefore: i <= 4 ? 8 - Math.floor(i * 0.5) : null,
+        vasScoreAfter: i <= 4 ? 6 - Math.floor(i * 0.7) : null,
+        notes: i <= 4 ? `Seduta ${i}: Buon progresso, paziente collaborativo. ${i === 2 ? 'Leggero miglioramento della mobilità.' : ''} ${i === 3 ? 'Riduzione del dolore notevole.' : ''}` : null,
+        treatmentDetails: i <= 4 ? {
+          intensity: config.intensity,
+          frequency: config.frequency,
+          duration: config.duration,
+          area: i % 2 === 0 ? 'Zona lombare' : 'Zona cervicale'
+        } : null,
         exercises: i <= 4 ? [
           'Mobilizzazione articolare',
           'Stretching',
@@ -528,10 +551,17 @@ const TherapyDetail: React.FC = () => {
                                 }`}>
                                   {session.sessionNumber}
                                 </span>
-                                <div>
-                                  <p className="font-medium text-gray-900">
-                                    Seduta #{session.sessionNumber}
-                                  </p>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3">
+                                    <p className="font-medium text-gray-900">
+                                      Seduta #{session.sessionNumber}
+                                    </p>
+                                    {session.therapyType && (
+                                      <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs font-medium rounded">
+                                        {session.therapyType}
+                                      </span>
+                                    )}
+                                  </div>
                                   <p className="text-sm text-gray-500">
                                     {format(new Date(session.date), 'EEEE dd MMMM yyyy', { locale: it })}
                                   </p>
@@ -554,6 +584,15 @@ const TherapyDetail: React.FC = () => {
                                       <span className="font-medium">{session.duration} min</span>
                                     </div>
                                   </div>
+                                  {session.treatmentDetails && (
+                                    <div className="flex items-center gap-3 text-xs text-gray-500 bg-gray-50 rounded p-2">
+                                      <span>Intensità: {session.treatmentDetails.intensity}</span>
+                                      <span>•</span>
+                                      <span>Frequenza: {session.treatmentDetails.frequency}</span>
+                                      <span>•</span>
+                                      <span>Area: {session.treatmentDetails.area}</span>
+                                    </div>
+                                  )}
                                   {session.notes && (
                                     <p className="text-sm text-gray-600 italic">"{session.notes}"</p>
                                   )}
