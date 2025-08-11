@@ -172,6 +172,15 @@ class TherapyService {
   async getTodaySessionsForTherapist(therapistId: string) {
     return api.get(`/therapies/therapist/${therapistId}/today`);
   }
+
+  // Metodi di supporto per azioni rapide
+  async suspend(id: string) {
+    return this.updateStatus(id, 'CANCELLED');
+  }
+
+  async complete(id: string) {
+    return this.updateStatus(id, 'COMPLETED');
+  }
 }
 
 export const therapyService = new TherapyService();

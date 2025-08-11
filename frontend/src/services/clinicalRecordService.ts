@@ -4,32 +4,20 @@ export interface ClinicalRecord {
   id: string;
   patientId: string;
   recordNumber: string;
-  acceptanceDate: string;
+  acceptanceDate: Date;
   diagnosis: string;
   diagnosticDetails?: string;
   symptomatology?: string;
   objectiveExamination?: string;
   instrumentalExams?: string;
-  interventionDate?: string;
+  interventionDate?: Date;
   interventionDoctor?: string;
   isActive: boolean;
-  closedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  patient?: {
-    firstName: string;
-    lastName: string;
-    fiscalCode: string;
-  };
-  createdBy?: {
-    firstName: string;
-    lastName: string;
-  };
+  closedAt?: Date;
+  createdById: string;
+  patient?: any;
+  createdBy?: any;
   therapies?: any[];
-  _count?: {
-    therapies: number;
-    clinicalControls: number;
-  };
 }
 
 export interface CreateClinicalRecordDto {
@@ -43,114 +31,107 @@ export interface CreateClinicalRecordDto {
   interventionDoctor?: string;
 }
 
+export interface UpdateClinicalRecordDto {
+  diagnosis?: string;
+  diagnosticDetails?: string;
+  symptomatology?: string;
+  objectiveExamination?: string;
+  instrumentalExams?: string;
+  interventionDate?: string;
+  interventionDoctor?: string;
+  isActive?: boolean;
+}
+
 class ClinicalRecordService {
   async getAll(params?: {
     page?: number;
     limit?: number;
     search?: string;
-    status?: 'open' | 'closed' | 'all';
+    isActive?: boolean;
     patientId?: string;
   }) {
-    try {
-      const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.search) queryParams.append('search', params.search);
-      if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
-      if (params?.patientId) queryParams.append('patientId', params.patientId);
-
-      const response = await api.get(`/clinical-records?${queryParams}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching clinical records:', error);
-      throw error;
-    }
+    return api.get('/clinical-records', { params });
   }
 
   async getById(id: string) {
-    try {
-      const response = await api.get(`/clinical-records/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching clinical record:', error);
-      throw error;
-    }
+    return api.get(`/clinical-records/${id}`);
+  }
+
+  async getByPatient(patientId: string) {
+    return api.get('/clinical-records', { params: { patientId } });
   }
 
   async create(data: CreateClinicalRecordDto) {
-    try {
-      const response = await api.post('/clinical-records', data);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating clinical record:', error);
-      throw error;
-    }
+    return api.post('/clinical-records', data);
   }
 
-  async update(id: string, data: Partial<CreateClinicalRecordDto>) {
-    try {
-      const response = await api.put(`/clinical-records/${id}`, data);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating clinical record:', error);
-      throw error;
-    }
-  }
-
-  async close(id: string, closureNotes?: string) {
-    try {
-      const response = await api.post(`/clinical-records/${id}/close`, { closureNotes });
-      return response.data;
-    } catch (error) {
-      console.error('Error closing clinical record:', error);
-      throw error;
-    }
-  }
-
-  async reopen(id: string, reason?: string) {
-    try {
-      const response = await api.post(`/clinical-records/${id}/reopen`, { reason });
-      return response.data;
-    } catch (error) {
-      console.error('Error reopening clinical record:', error);
-      throw error;
-    }
+  async update(id: string, data: UpdateClinicalRecordDto) {
+    return api.put(`/clinical-records/${id}`, data);
   }
 
   async delete(id: string) {
-    try {
-      const response = await api.delete(`/clinical-records/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting clinical record:', error);
-      throw error;
-    }
+    return api.delete(`/clinical-records/${id}`);
   }
 
-  async getTherapies(recordId: string) {
-    try {
-      const response = await api.get(`/clinical-records/${recordId}/therapies`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching therapies:', error);
-      throw error;
-    }
+  async close(id: string) {
+    return api.put(`/clinical-records/${id}/close`);
   }
 
+  async reopen(id: string) {
+    return api.put(`/clinical-records/${id}/reopen`);
+  }
+
+  // Documenti
+  async uploadDocument(recordId: string, file: File, documentType: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('documentType', documentType);
+    
+    return api.post(`/clinical-records/${recordId}/documents`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
+
+  async getDocuments(recordId: string) {
+    return api.get(`/clinical-records/${recordId}/documents`);
+  }
+
+  async deleteDocument(recordId: string, documentId: string) {
+    return api.delete(`/clinical-records/${recordId}/documents/${documentId}`);
+  }
+
+  // Report
   async generateReport(id: string) {
-    try {
-      const response = await api.get(`/clinical-records/${id}/report`, {
-        responseType: 'blob'
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error generating report:', error);
-      throw error;
-    }
+    return api.get(`/clinical-records/${id}/report`, {
+      responseType: 'blob',
+    });
+  }
+
+  // Controlli clinici
+  async addClinicalControl(recordId: string, data: {
+    controlDate: string;
+    findings: string;
+    recommendations?: string;
+    nextControlDate?: string;
+  }) {
+    return api.post(`/clinical-records/${recordId}/controls`, data);
+  }
+
+  async getClinicalControls(recordId: string) {
+    return api.get(`/clinical-records/${recordId}/controls`);
+  }
+
+  // Valutazioni funzionali
+  async addFunctionalEvaluation(recordId: string, data: any) {
+    return api.post(`/clinical-records/${recordId}/evaluations`, data);
+  }
+
+  async getFunctionalEvaluations(recordId: string) {
+    return api.get(`/clinical-records/${recordId}/evaluations`);
   }
 }
 
-const clinicalRecordService = new ClinicalRecordService();
-
-export { clinicalRecordService };
-export type { ClinicalRecord, CreateClinicalRecordDto };
+export const clinicalRecordService = new ClinicalRecordService();
+export default clinicalRecordService;
