@@ -1,80 +1,47 @@
 import { Router } from 'express';
 import { TherapyController } from '../controllers/TherapyController';
-import { authenticate, authorize } from '../middleware/auth';
+import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// Tutte le routes richiedono autenticazione
-router.use(authenticate);
+// Applica autenticazione a tutte le route
+router.use(authMiddleware);
 
-// Inizializzazione tipi di terapia (solo admin)
-router.post('/initialize-types',
-  authorize('ADMIN'),
-  TherapyController.initializeTypes
-);
+// Route per i tipi di terapia (deve essere prima di /:id per evitare conflitti)
+router.get('/therapy-types', TherapyController.getTherapyTypes);
+router.post('/initialize-types', TherapyController.initializeTypes);
+router.get('/types/:typeCode/parameters', TherapyController.getParameterSchema);
 
-// Routes base per le terapie
-router.get('/',
-  TherapyController.getAll
-);
+// Route per le terapie per cartella clinica
+router.get('/clinical-record/:recordId', TherapyController.getByClinicalRecord);
 
-router.get('/:id',
-  TherapyController.getById
-);
+// Route per terapista
+router.get('/therapist/:therapistId/today', TherapyController.getTodaySessionsForTherapist);
 
-router.post('/', 
-  authorize('ADMIN', 'DOCTOR', 'THERAPIST'),
-  TherapyController.create
-);
+// Route per le sessioni (operazioni generali)
+router.post('/sessions/:sessionId/cancel', TherapyController.cancelSession);
+router.post('/sessions/:sessionId/reschedule', TherapyController.rescheduleSession);
+router.put('/sessions/:sessionId/progress', TherapyController.updateSessionProgress);
 
-// Pianificazione e gestione sedute
-router.post('/schedule-session',
-  authorize('ADMIN', 'DOCTOR', 'THERAPIST'),
-  TherapyController.scheduleSession
-);
+// Route per le terapie principali
+router.get('/', TherapyController.getAll);
+router.get('/:id', TherapyController.getById);
+router.post('/', TherapyController.create);
+router.put('/:id', TherapyController.update);
+router.delete('/:id', TherapyController.delete);
+router.put('/:id/status', TherapyController.updateStatus);
 
-router.put('/sessions/:sessionId/progress',
-  authorize('ADMIN', 'DOCTOR', 'THERAPIST', 'NURSE'),
-  TherapyController.updateSessionProgress
-);
+// Route per statistiche e report
+router.get('/:id/vas-improvement', TherapyController.getVASImprovement);
+router.get('/:id/statistics', TherapyController.getStatistics);
+router.get('/:id/report', TherapyController.generateReport);
 
-router.post('/sessions/:sessionId/cancel',
-  authorize('ADMIN', 'DOCTOR', 'THERAPIST'),
-  TherapyController.cancelSession
-);
+// Route per le sessioni di una terapia specifica
+router.get('/:id/sessions', TherapyController.getSessions);
+router.post('/:id/sessions', TherapyController.createSession);
+router.put('/:id/sessions/:sessionId', TherapyController.updateSession);
 
-router.post('/sessions/:sessionId/reschedule',
-  authorize('ADMIN', 'DOCTOR', 'THERAPIST'),
-  TherapyController.rescheduleSession
-);
-
-// Statistiche e report
-router.get('/:id/vas-improvement',
-  TherapyController.getVASImprovement
-);
-
-router.get('/:id/statistics',
-  TherapyController.getStatistics
-);
-
-router.get('/:id/report',
-  authorize('ADMIN', 'DOCTOR'),
-  TherapyController.generateReport
-);
-
-// Terapie per cartella clinica
-router.get('/clinical-record/:recordId',
-  TherapyController.getByClinicalRecord
-);
-
-// Sedute del giorno per terapista
-router.get('/therapist/:therapistId/today',
-  TherapyController.getTodaySessionsForTherapist
-);
-
-// Schema parametri per tipo di terapia
-router.get('/types/:typeCode/parameters',
-  TherapyController.getParameterSchema
-);
+// Route aggiuntive
+router.post('/schedule-session', TherapyController.scheduleSession);
 
 export default router;

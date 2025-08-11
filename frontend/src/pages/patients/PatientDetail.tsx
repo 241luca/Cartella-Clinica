@@ -27,6 +27,7 @@ import { format, differenceInYears } from 'date-fns';
 import { it } from 'date-fns/locale';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import NewTherapyWizard from '../../components/therapy/NewTherapyWizard';
 
 interface Patient {
   id: string;
@@ -109,6 +110,7 @@ const PatientDetail: React.FC = () => {
   
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'records' | 'therapies' | 'timeline'>('overview');
+  const [showTherapyWizard, setShowTherapyWizard] = useState(false);
   
   const [patient, setPatient] = useState<Patient | null>(null);
   const [clinicalRecords, setClinicalRecords] = useState<ClinicalRecord[]>([]);
@@ -592,7 +594,7 @@ const PatientDetail: React.FC = () => {
                         Nuova Cartella
                       </button>
                       <button
-                        onClick={() => navigate(`/patients/${id}/therapies/new`)}
+                        onClick={() => setShowTherapyWizard(true)}
                         className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
                         <Plus className="w-4 h-4 mr-2" />
@@ -747,7 +749,7 @@ const PatientDetail: React.FC = () => {
                 <div className="mb-4 flex justify-between items-center">
                   <h3 className="text-lg font-semibold text-gray-900">Terapie</h3>
                   <button
-                    onClick={() => navigate(`/patients/${id}/therapies/new`)}
+                    onClick={() => setShowTherapyWizard(true)}
                     className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -882,6 +884,19 @@ const PatientDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Therapy Wizard */}
+      <NewTherapyWizard
+        isOpen={showTherapyWizard}
+        onClose={() => setShowTherapyWizard(false)}
+        patientId={patient.id}
+        clinicalRecordId={clinicalRecords.find(r => r.status === 'OPEN')?.id}
+        onSuccess={(therapy) => {
+          toast.success('Terapia creata con successo!');
+          loadPatientData(); // Ricarica i dati
+          setActiveTab('therapies'); // Passa al tab terapie
+        }}
+      />
     </div>
   );
 };
