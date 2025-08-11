@@ -505,6 +505,263 @@ export class TherapyController {
       next(error);
     }
   }
+
+  // POST /api/therapies/initialize-types - Inizializza tipi di terapia
+  static async initializeTypes(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      ResponseFormatter.success(res, null, 'Tipi di terapia già inizializzati tramite seed');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/therapies/schedule-session - Pianifica sessione
+  static async scheduleSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await TherapyController.createSession(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // PUT /api/therapies/sessions/:sessionId/progress - Aggiorna progresso sessione
+  static async updateSessionProgress(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await TherapyController.updateSession(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/therapies/sessions/:sessionId/cancel - Annulla sessione
+  static async cancelSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { sessionId } = req.params;
+      
+      const session = await prisma.therapySession.update({
+        where: { id: sessionId },
+        data: { status: 'CANCELLED' }
+      });
+
+      ResponseFormatter.updated(res, session, 'Sessione annullata');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/therapies/sessions/:sessionId/reschedule - Riprogramma sessione
+  static async rescheduleSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { sessionId } = req.params;
+      const { newDate } = req.body;
+      
+      const session = await prisma.therapySession.update({
+        where: { id: sessionId },
+        data: { 
+          status: 'RESCHEDULED',
+          sessionDate: new Date(newDate)
+        }
+      });
+
+      ResponseFormatter.updated(res, session, 'Sessione riprogrammata');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/:id/vas-improvement - Calcola miglioramento VAS
+  static async getVASImprovement(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      
+      const sessions = await prisma.therapySession.findMany({
+        where: { 
+          therapyId: id,
+          status: 'COMPLETED',
+          vasScoreBefore: { not: null },
+          vasScoreAfter: { not: null }
+        },
+        orderBy: { sessionNumber: 'asc' }
+      });
+
+      if (sessions.length === 0) {
+        ResponseFormatter.success(res, { improvement: 0, message: 'Nessuna sessione completata con VAS' });
+        return;
+      }
+
+      const firstVAS = sessions[0].vasScoreBefore || 0;
+      const lastVAS = sessions[sessions.length - 1].vasScoreAfter || 0;
+      const improvement = ((firstVAS - lastVAS) / firstVAS) * 100;
+
+      ResponseFormatter.success(res, {
+        improvement: Math.round(improvement),
+        firstVAS,
+        lastVAS,
+        sessionsCount: sessions.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/:id/statistics - Statistiche terapia
+  static async getStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      
+      const therapy = await prisma.therapy.findUnique({
+        where: { id },
+        include: {
+          sessions: true,
+          _count: {
+            select: { sessions: true }
+          }
+        }
+      });
+
+      if (!therapy) {
+        ResponseFormatter.notFound(res, 'Terapia non trovata');
+        return;
+      }
+
+      const completedSessions = therapy.sessions.filter(s => s.status === 'COMPLETED');
+      const cancelledSessions = therapy.sessions.filter(s => s.status === 'CANCELLED');
+      const adherence = therapy.prescribedSessions > 0 
+        ? (completedSessions.length / therapy.prescribedSessions) * 100 
+        : 0;
+
+      ResponseFormatter.success(res, {
+        totalSessions: therapy.prescribedSessions,
+        completedSessions: completedSessions.length,
+        cancelledSessions: cancelledSessions.length,
+        remainingSessions: therapy.prescribedSessions - completedSessions.length,
+        adherenceRate: Math.round(adherence),
+        status: therapy.status
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/:id/report - Genera report
+  static async generateReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      
+      const therapy = await prisma.therapy.findUnique({
+        where: { id },
+        include: {
+          therapyType: true,
+          clinicalRecord: {
+            include: {
+              patient: true
+            }
+          },
+          sessions: {
+            include: {
+              therapist: true
+            },
+            orderBy: { sessionNumber: 'asc' }
+          }
+        }
+      });
+
+      if (!therapy) {
+        ResponseFormatter.notFound(res, 'Terapia non trovata');
+        return;
+      }
+
+      ResponseFormatter.success(res, { report: therapy });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/clinical-record/:recordId - Terapie per cartella clinica
+  static async getByClinicalRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { recordId } = req.params;
+      
+      const therapies = await prisma.therapy.findMany({
+        where: { clinicalRecordId: recordId },
+        include: {
+          therapyType: true,
+          sessions: {
+            orderBy: { sessionNumber: 'asc' }
+          },
+          _count: {
+            select: { sessions: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      ResponseFormatter.success(res, { therapies });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/therapist/:therapistId/today - Sessioni del giorno per terapista
+  static async getTodaySessionsForTherapist(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { therapistId } = req.params;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const sessions = await prisma.therapySession.findMany({
+        where: {
+          therapistId,
+          sessionDate: {
+            gte: today,
+            lt: tomorrow
+          }
+        },
+        include: {
+          therapy: {
+            include: {
+              therapyType: true,
+              clinicalRecord: {
+                include: {
+                  patient: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { sessionDate: 'asc' }
+      });
+
+      ResponseFormatter.success(res, { sessions });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/therapies/types/:typeCode/parameters - Schema parametri per tipo
+  static async getParameterSchema(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { typeCode } = req.params;
+      
+      const therapyType = await prisma.therapyType.findUnique({
+        where: { code: typeCode }
+      });
+
+      if (!therapyType) {
+        ResponseFormatter.notFound(res, 'Tipo di terapia non trovato');
+        return;
+      }
+
+      ResponseFormatter.success(res, {
+        parametersSchema: therapyType.parametersSchema
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default TherapyController;
