@@ -106,8 +106,17 @@ const TherapyForm: React.FC = () => {
   const loadTherapyTypes = async () => {
     try {
       const response = await therapyService.getTherapyTypes();
-      if (response.success) {
-        setTherapyTypes(response.data || []);
+      // Gestisci sia array diretto che oggetto con success/data
+      if (Array.isArray(response)) {
+        setTherapyTypes(response);
+      } else if (response?.success && Array.isArray(response.data)) {
+        setTherapyTypes(response.data);
+      } else if (response?.data && Array.isArray(response.data)) {
+        setTherapyTypes(response.data);
+      } else {
+        // Se la risposta non è nel formato atteso, usa mock
+        console.warn('Formato risposta non atteso:', response);
+        setTherapyTypes(getMockTherapyTypes());
       }
     } catch (error) {
       console.error('Errore caricamento tipi terapia:', error);
@@ -456,7 +465,7 @@ const TherapyForm: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {therapyTypes.map(type => (
+              {Array.isArray(therapyTypes) && therapyTypes.length > 0 ? therapyTypes.map(type => (
                 <div
                   key={type.id}
                   onClick={() => handleTherapyTypeChange(type.id)}
@@ -478,7 +487,18 @@ const TherapyForm: React.FC = () => {
                     <span>📅 {type.defaultSessions} sedute</span>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="col-span-2 text-center py-8 text-gray-500">
+                  <p>Nessun tipo di terapia disponibile</p>
+                  <button 
+                    type="button"
+                    onClick={() => setTherapyTypes(getMockTherapyTypes())}
+                    className="mt-2 text-blue-600 hover:text-blue-800 underline text-sm"
+                  >
+                    Usa dati di esempio
+                  </button>
+                </div>
+              )}
             </div>
             
             {errors.therapyTypeId && (

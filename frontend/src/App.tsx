@@ -107,9 +107,10 @@ function App() {
               {/* Route pubbliche */}
               <Route path="/login" element={<LoginPage />} />
               
-              {/* Route protette */}
+              {/* Route protette con MainLayout */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route element={<MainLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
                   
                   {/* Pazienti */}
                   <Route path="/patients" element={<PatientList />} />
@@ -139,6 +140,7 @@ function App() {
                   
                   {/* Documents */}
                   <Route path="/clinical-records/:recordId/documents" element={<DocumentUpload />} />
+                </Route>
               </Route>
               
               {/* Redirect dalla root */}
