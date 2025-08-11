@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { addDays, subMonths } from 'date-fns';
+import { addDays, subDays, subMonths } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -128,9 +128,9 @@ async function main() {
   const adminPassword = await bcrypt.hash('admin123', 10);
   const doctorPassword = await bcrypt.hash('doctor123', 10);
   const therapistPassword = await bcrypt.hash('therapist123', 10);
-  // const nursePassword = await bcrypt.hash('nurse123', 10);
+  const nursePassword = await bcrypt.hash('nurse123', 10);
 
-  await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: 'admin@medicinaravenna.it' },
     update: {},
     create: {
@@ -426,7 +426,7 @@ async function main() {
         gender: isMale ? 'MALE' : 'FEMALE',
         address: `${street} ${Math.floor(Math.random() * 200) + 1}`,
         city,
-        // province: 'RA', // Campo non presente nel modello
+        province: 'RA',
         postalCode: `481${(Math.floor(Math.random() * 90) + 10).toString()}`,
         phone: `0544${(300000 + Math.floor(Math.random() * 100000)).toString()}`,
         mobile: `3${Math.floor(Math.random() * 4) + 3}${Math.floor(Math.random() * 10)}${(1000000 + Math.floor(Math.random() * 9000000)).toString()}`,
@@ -513,7 +513,7 @@ async function main() {
             completedSessions,
             startDate: therapyStartDate,
             endDate: therapyStatus === 'COMPLETED' ? addDays(therapyStartDate, prescribedSessions * 2) : null,
-            status: therapyStatus as any, // Cast necessario per il tipo enum
+            status: therapyStatus,
             frequency: Math.random() > 0.5 ? '3x/settimana' : '2x/settimana',
             district: `Distretto anatomico ${Math.floor(Math.random() * 5) + 1}`,
             notes: completedSessions > prescribedSessions / 2 ? 
@@ -561,9 +561,9 @@ async function main() {
                 generateSessionNote(sessionNumber, (vasScores.before || 0) - (vasScores.after || 0), therapyType.name) : 
                 null,
               parameters: isCompleted ? {
-                intensity: (therapy.parameters as any)?.intensity || 75,
-                frequency: (therapy.parameters as any)?.frequency || '3 MHz',
-                power: (therapy.parameters as any)?.power || 100,
+                intensity: therapy.parameters?.intensity || 75,
+                frequency: therapy.parameters?.frequency || '3 MHz',
+                power: therapy.parameters?.power || 100,
                 duration: therapyType.defaultDuration,
                 area: therapy.district,
               } : null,
@@ -614,10 +614,19 @@ async function main() {
         allergies: Math.random() > 0.8 ? 
           (Math.random() > 0.5 ? 'Pollini, Graminacee' : 'Penicillina') : 
           'Nessuna allergia nota',
-        // medications: age > 60 && Math.random() > 0.5 ?
-        //   'Antipertensivi, Statine' :
-        //   'Nessuna terapia in corso',
-        // smoke, alcohol, physicalActivity, occupation non presenti nel modello
+        medications: age > 60 && Math.random() > 0.5 ? 
+          'Antipertensivi, Statine' : 
+          'Nessuna terapia in corso',
+        smoke: Math.random() > 0.7 ? 
+          (Math.random() > 0.5 ? 'Ex fumatore' : '10 sigarette/die') : 
+          'Non fumatore',
+        alcohol: Math.random() > 0.5 ? 'Occasionale' : 'Astemio',
+        physicalActivity: age < 50 ? 
+          (Math.random() > 0.5 ? '2-3 volte/settimana' : 'Saltuaria') : 
+          'Scarsa',
+        occupation: age < 65 ? 
+          (Math.random() > 0.5 ? 'Impiegato' : 'Operaio') : 
+          'Pensionato',
       },
     });
   }
@@ -651,7 +660,7 @@ async function main() {
           oxygenSaturation: 96 + Math.random() * 3,
           weight: 55 + Math.floor(Math.random() * 40),
           height: 155 + Math.floor(Math.random() * 30),
-          // pain: Math.floor(Math.random() * 5) + 3, // VAS 3-7
+          pain: Math.floor(Math.random() * 5) + 3, // VAS 3-7
         },
       });
     }
