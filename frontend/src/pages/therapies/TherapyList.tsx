@@ -336,7 +336,11 @@ const TherapyList: React.FC = () => {
                         <p className="font-medium text-gray-900 text-sm">
                           {patient.firstName || 'Nome'} {patient.lastName || 'Cognome'}
                         </p>
-                        <p className="text-xs text-gray-500">{patient.fiscalCode || 'CF non disponibile'}</p>
+                        <p className="text-xs text-gray-600">
+                          {patient.birthDate ? 
+                            format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it }) : 
+                            patient.fiscalCode || 'CF non disponibile'}
+                        </p>
                       </div>
                     </div>
                     {getStatusBadge(therapy.status)}
