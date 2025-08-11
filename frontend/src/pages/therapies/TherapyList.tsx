@@ -335,11 +335,14 @@ const TherapyList: React.FC = () => {
                       <div>
                         <p className="font-medium text-gray-900 text-sm">
                           {patient.firstName || 'Nome'} {patient.lastName || 'Cognome'}
+                          {patient.birthDate && (
+                            <span className="text-sm text-gray-600 font-normal ml-1">
+                              - {format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it })}
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-gray-600">
-                          {patient.birthDate ? 
-                            format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it }) : 
-                            patient.fiscalCode || 'CF non disponibile'}
+                          {patient.fiscalCode || 'CF non disponibile'}
                         </p>
                       </div>
                     </div>

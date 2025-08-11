@@ -159,16 +159,22 @@ export const GlobalSearchBar: React.FC = () => {
         const records = recordsResponse?.data?.data || recordsResponse?.data || [];
         
         records.forEach((record: any) => {
-          const patientName = record.patient ? 
-            `${record.patient.lastName} ${record.patient.firstName}` : 
+          const patient = record.patient;
+          const patientName = patient ? 
+            `${patient.lastName} ${patient.firstName}` : 
             'Paziente sconosciuto';
+          
+          // Formatta la data di nascita se disponibile
+          const birthDate = patient?.birthDate ? 
+            format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it }) : 
+            '';
           
           searchResults.push({
             id: record.id,
             type: 'record',
             title: `Cartella #${record.recordNumber}`,
             subtitle: record.diagnosis,
-            meta: patientName,
+            meta: birthDate ? `${patientName} • ${birthDate}` : patientName,
             url: `/clinical-records/${record.id}`
           });
         });

@@ -315,11 +315,14 @@ const ClinicalRecordList: React.FC = () => {
                   <div>
                     <p className="font-medium text-gray-900">
                       {record.patient?.firstName} {record.patient?.lastName}
+                      {record.patient?.birthDate && (
+                        <span className="text-sm text-gray-600 font-normal ml-2">
+                          - {format(new Date(record.patient.birthDate), 'dd/MM/yyyy', { locale: it })}
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {record.patient?.birthDate ? 
-                        format(new Date(record.patient.birthDate), 'dd/MM/yyyy', { locale: it }) : 
-                        record.patient?.fiscalCode}
+                      {record.patient?.fiscalCode}
                     </p>
                   </div>
                 </div>

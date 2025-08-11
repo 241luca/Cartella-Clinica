@@ -340,12 +340,12 @@ const PatientList: React.FC = () => {
                           <div className="ml-3">
                             <p className="text-sm font-medium text-gray-900">
                               {patient.firstName} {patient.lastName}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it })} 
-                              <span className="text-gray-400 ml-1">
-                                ({getAge(patient.birthDate)} anni • {patient.gender === 'MALE' ? 'M' : 'F'})
+                              <span className="text-sm text-gray-600 font-normal ml-2">
+                                - {format(new Date(patient.birthDate), 'dd/MM/yyyy', { locale: it })}
                               </span>
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getAge(patient.birthDate)} anni • {patient.gender === 'MALE' ? 'M' : 'F'}
                             </p>
                           </div>
                         </div>
