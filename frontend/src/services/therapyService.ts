@@ -122,7 +122,11 @@ class TherapyService {
 
   // Tipi di terapia
   async getTherapyTypes() {
-    return api.get('/therapy-types');
+    return api.get('/therapies/therapy-types');
+  }
+
+  async initializeTypes() {
+    return api.post('/therapies/initialize-types');
   }
 
   async getParameterSchema(typeCode: string) {
