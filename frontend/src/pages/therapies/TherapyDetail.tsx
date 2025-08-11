@@ -316,7 +316,7 @@ const TherapyDetail: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">Data inizio</p>
                     <p className="text-gray-900 font-medium">
-                      {format(new Date(therapy.startDate), 'dd MMMM yyyy', { locale: it })}
+                      {therapy.startDate ? format(new Date(therapy.startDate), 'dd MMMM yyyy', { locale: it }) : 'N/D'}
                     </p>
                   </div>
                   <div>
@@ -372,7 +372,7 @@ const TherapyDetail: React.FC = () => {
                           Seduta #{nextSession.sessionNumber}
                         </p>
                         <p className="text-sm text-purple-700 mt-1">
-                          {format(new Date(nextSession.date), 'EEEE dd MMMM', { locale: it })}
+                          {nextSession.date ? format(new Date(nextSession.date), 'EEEE dd MMMM', { locale: it }) : 'N/D'}
                         </p>
                       </div>
                     </div>
@@ -456,7 +456,7 @@ const TherapyDetail: React.FC = () => {
                                     )}
                                   </div>
                                   <p className="text-sm text-gray-500">
-                                    {format(new Date(session.date), 'EEEE dd MMMM yyyy', { locale: it })}
+                                    {session.date ? format(new Date(session.date), 'EEEE dd MMMM yyyy', { locale: it }) : 'N/D'}
                                   </p>
                                 </div>
                               </div>
