@@ -150,8 +150,8 @@ const ClinicalRecordList: React.FC = () => {
     );
   }
 
-  const openRecords = records.filter(r => r.status === 'OPEN').length;
-  const closedRecords = records.filter(r => r.status === 'CLOSED').length;
+  const openRecords = records.filter(r => r.isActive === true || r.status === 'OPEN').length;
+  const closedRecords = records.filter(r => r.isActive === false || r.status === 'CLOSED').length;
 
   return (
     <AppLayout>
@@ -225,7 +225,7 @@ const ClinicalRecordList: React.FC = () => {
             </div>
             <p className="text-sm text-gray-500 mb-1">Da Completare</p>
             <p className="text-2xl font-bold text-gray-900">
-              {records.filter(r => r.status === 'OPEN' && (!r.diagnosis || !r.anamnesis)).length}
+              {records.filter(r => (r.isActive === true || r.status === 'OPEN') && (!r.diagnosis || !r.symptomatology)).length}
             </p>
           </div>
         </div>
@@ -279,7 +279,7 @@ const ClinicalRecordList: React.FC = () => {
                     <p className="text-xs text-gray-500">{record.patient?.fiscalCode}</p>
                   </div>
                 </div>
-                {getStatusBadge(record.status)}
+                {getStatusBadge(record.isActive ? 'OPEN' : record.status || 'CLOSED')}
               </div>
 
               <div className="space-y-2 mb-4">
