@@ -50,140 +50,32 @@ const TherapyDetail: React.FC = () => {
   const loadTherapy = async () => {
     try {
       setLoading(true);
-      // Per ora usiamo sempre mock data
-      const mockData = getMockTherapy();
-      setTherapy(mockData);
-      setSessions(getMockSessions());
-      /*
+      
+      // Usa l'API reale per caricare la terapia
       const response = await therapyService.getById(id!);
-      setTherapy(response.therapy || getMockTherapy());
-      */
+      
+      if (response.data && response.data.success) {
+        const therapyData = response.data.data;
+        setTherapy(therapyData);
+        
+        // Se ci sono sessioni incluse, usale
+        if (therapyData.sessions) {
+          setSessions(therapyData.sessions);
+        }
+      } else {
+        console.error('Terapia non trovata');
+        toast.error('Terapia non trovata');
+        navigate('/therapies');
+      }
     } catch (error) {
       console.error('Errore caricamento terapia:', error);
-      setTherapy(getMockTherapy());
-      setSessions(getMockSessions());
+      toast.error('Errore nel caricamento della terapia');
+      navigate('/therapies');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadSessions = async () => {
-    // Commentato per evitare errori 404
-    /*
-    try {
-      const response = await therapyService.getSessions(id!);
-      setSessions(response.sessions || getMockSessions());
-    } catch (error) {
-      console.error('Errore caricamento sedute:', error);
-      setSessions(getMockSessions());
-    }
-    */
-    setSessions(getMockSessions());
-  };
-
-  const getMockTherapy = () => ({
-    id: id,
-    patient: {
-      id: 'patient-1',
-      firstName: 'Mario',
-      lastName: 'Rossi',
-      fiscalCode: 'RSSMRA85M01H501Z',
-      birthDate: '1985-08-01',
-      phone: '+39 333 1234567',
-      email: 'mario.rossi@email.com',
-      address: 'Via Roma 123',
-      city: 'Milano',
-      province: 'MI',
-    },
-    clinicalRecord: {
-      id: 'record-1',
-      recordNumber: 'CR-2024-0001',
-      diagnosis: 'Lombalgia acuta',
-      acceptanceDate: new Date().toISOString(),
-    },
-    therapyType: {
-      id: 'type-1',
-      name: 'Fisioterapia',
-      category: 'MANUAL',
-      description: 'Terapia manuale per il recupero funzionale',
-    },
-    status: 'ACTIVE',
-    prescribedSessions: 10,
-    completedSessions: 4,
-    startDate: new Date(Date.now() - 30 * 86400000).toISOString(),
-    endDate: null,
-    frequency: 'Bisettimanale',
-    duration: '45 minuti',
-    notes: 'Paziente risponde bene al trattamento. Miglioramento della mobilità articolare.',
-    prescribedBy: {
-      firstName: 'Dott.',
-      lastName: 'Bianchi',
-      role: 'DOCTOR',
-    },
-    therapist: {
-      firstName: 'Anna',
-      lastName: 'Verdi',
-      role: 'THERAPIST',
-    },
-    objectives: [
-      'Riduzione del dolore',
-      'Recupero della mobilità articolare',
-      'Rinforzo muscolare',
-      'Rieducazione posturale'
-    ],
-    createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
-
-  const getMockSessions = () => {
-    const sessions = [];
-    
-    // Array di configurazioni realistiche per diverse terapie
-    const therapyConfigs = [
-      { type: 'TENS', intensity: '60 mA', frequency: '100 Hz', duration: '20 min' },
-      { type: 'Laser Yag', intensity: '3.5 W', frequency: '1500 Hz', duration: '15 min' },
-      { type: 'Tecarterapia', intensity: 'Capacitivo 60%', frequency: '470 kHz', duration: '30 min' },
-      { type: 'Ultrasuoni', intensity: '1.5 W/cm²', frequency: '1 MHz', duration: '10 min' },
-      { type: 'Magnetoterapia', intensity: '50 Gauss', frequency: '75 Hz', duration: '30 min' },
-      { type: 'Massoterapia', intensity: 'Media pressione', frequency: 'N/A', duration: '45 min' },
-      { type: 'Ionoforesi', intensity: '4 mA', frequency: 'Continua', duration: '20 min' },
-      { type: 'Infrarossi', intensity: '150 W', frequency: 'N/A', duration: '15 min' },
-      { type: 'Elettrostimolazione', intensity: '35 mA', frequency: '50 Hz', duration: '25 min' },
-      { type: 'Crioterapia', intensity: '-5°C', frequency: 'N/A', duration: '10 min' }
-    ];
-    
-    for (let i = 1; i <= 10; i++) {
-      const config = therapyConfigs[i - 1];
-      sessions.push({
-        id: `session-${i}`,
-        sessionNumber: i,
-        date: new Date(Date.now() - (10 - i) * 3 * 86400000).toISOString(),
-        completed: i <= 4,
-        duration: 45,
-        therapyType: config.type,
-        therapist: {
-          firstName: i % 2 === 0 ? 'Anna' : 'Marco',
-          lastName: i % 2 === 0 ? 'Verdi' : 'Bianchi',
-        },
-        vasScoreBefore: i <= 4 ? 8 - Math.floor(i * 0.5) : null,
-        vasScoreAfter: i <= 4 ? 6 - Math.floor(i * 0.7) : null,
-        notes: i <= 4 ? `Seduta ${i}: Buon progresso, paziente collaborativo. ${i === 2 ? 'Leggero miglioramento della mobilità.' : ''} ${i === 3 ? 'Riduzione del dolore notevole.' : ''}` : null,
-        treatmentDetails: i <= 4 ? {
-          intensity: config.intensity,
-          frequency: config.frequency,
-          duration: config.duration,
-          area: i % 2 === 0 ? 'Zona lombare' : 'Zona cervicale'
-        } : null,
-        exercises: i <= 4 ? [
-          'Mobilizzazione articolare',
-          'Stretching',
-          'Rinforzo muscolare',
-          'Esercizi propriocettivi'
-        ] : [],
-      });
-    }
-    return sessions;
-  };
 
   const handleStartSession = (sessionId: string) => {
     navigate(`/therapies/${id}/sessions/${sessionId}`);
@@ -314,7 +206,7 @@ const TherapyDetail: React.FC = () => {
                   {getStatusBadge(therapy.status)}
                 </div>
                 <p className="text-sm text-gray-500">
-                  {therapy.patient.firstName} {therapy.patient.lastName} - Cartella #{therapy.clinicalRecord.recordNumber}
+                  {therapy.clinicalRecord?.patient?.firstName} {therapy.clinicalRecord?.patient?.lastName} - Cartella #{therapy.clinicalRecord?.recordNumber}
                 </p>
               </div>
             </div>
@@ -365,37 +257,37 @@ const TherapyDetail: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-medium text-lg">
-                      {therapy.patient.firstName.charAt(0)}{therapy.patient.lastName.charAt(0)}
+                      {therapy.clinicalRecord?.patient?.firstName?.charAt(0) || '?'}{therapy.clinicalRecord?.patient?.lastName?.charAt(0) || '?'}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {therapy.patient.firstName} {therapy.patient.lastName}
+                        {therapy.clinicalRecord?.patient?.firstName} {therapy.clinicalRecord?.patient?.lastName}
                       </p>
-                      <p className="text-sm text-gray-500">{therapy.patient.fiscalCode}</p>
+                      <p className="text-sm text-gray-500">{therapy.clinicalRecord?.patient?.fiscalCode}</p>
                     </div>
                   </div>
                   
                   <div className="pt-3 space-y-2 border-t border-gray-100">
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-900">{therapy.patient.phone}</span>
+                      <span className="text-gray-900">{therapy.clinicalRecord?.patient?.phone || 'N/D'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-900 text-xs">{therapy.patient.email}</span>
+                      <span className="text-gray-900 text-xs">{therapy.clinicalRecord?.patient?.email || 'N/D'}</span>
                     </div>
                     <div className="flex items-start gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
-                        <p className="text-gray-900">{therapy.patient.address}</p>
-                        <p className="text-gray-600">{therapy.patient.city} ({therapy.patient.province})</p>
+                        <p className="text-gray-900">{therapy.clinicalRecord?.patient?.address || 'N/D'}</p>
+                        <p className="text-gray-600">{therapy.clinicalRecord?.patient?.city} {therapy.clinicalRecord?.patient?.province ? `(${therapy.clinicalRecord.patient.province})` : ''}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div className="pt-3 border-t border-gray-100">
                     <button
-                      onClick={() => navigate(`/patients/${therapy.patient.id}`)}
+                      onClick={() => navigate(`/patients/${therapy.clinicalRecord?.patient?.id}`)}
                       className="w-full text-center text-sm text-purple-600 hover:text-purple-800 font-medium"
                     >
                       Vai alla scheda paziente →
@@ -415,11 +307,11 @@ const TherapyDetail: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Frequenza</p>
-                    <p className="text-gray-900 font-medium">{therapy.frequency}</p>
+                    <p className="text-gray-900 font-medium">{therapy.frequency || therapy.parameters?.frequency || 'N/D'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Durata seduta</p>
-                    <p className="text-gray-900 font-medium">{therapy.duration}</p>
+                    <p className="text-gray-900 font-medium">{therapy.parameters?.duration || '30'} minuti</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Data inizio</p>
@@ -430,13 +322,13 @@ const TherapyDetail: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">Prescrittore</p>
                     <p className="text-gray-900 font-medium">
-                      {therapy.prescribedBy.firstName} {therapy.prescribedBy.lastName}
+                      {therapy.createdBy?.firstName || 'Dott.'} {therapy.createdBy?.lastName || 'N/D'}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Terapista</p>
                     <p className="text-gray-900 font-medium">
-                      {therapy.therapist.firstName} {therapy.therapist.lastName}
+                      {therapy.therapist?.firstName || 'N/D'} {therapy.therapist?.lastName || ''}
                     </p>
                   </div>
                 </div>
@@ -686,7 +578,7 @@ const TherapyDetail: React.FC = () => {
                           Obiettivi del trattamento
                         </h4>
                         <div className="space-y-2">
-                          {therapy.objectives.map((objective: string, index: number) => (
+                          {therapy.objectives?.map((objective: string, index: number) => (
                             <div key={index} className="flex items-start gap-2">
                               <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                               <p className="text-sm text-gray-700">{objective}</p>
@@ -701,7 +593,7 @@ const TherapyDetail: React.FC = () => {
                           Note generali
                         </h4>
                         <div className="bg-gray-50 rounded-lg p-4">
-                          <p className="text-sm text-gray-700">{therapy.notes}</p>
+                          <p className="text-sm text-gray-700">{therapy.notes || 'Nessuna nota disponibile'}</p>
                         </div>
                       </div>
 
@@ -711,9 +603,9 @@ const TherapyDetail: React.FC = () => {
                           Diagnosi associata
                         </h4>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <p className="text-sm font-medium text-blue-900">{therapy.clinicalRecord.diagnosis}</p>
+                          <p className="text-sm font-medium text-blue-900">{therapy.clinicalRecord?.diagnosis || 'N/D'}</p>
                           <button
-                            onClick={() => navigate(`/clinical-records/${therapy.clinicalRecord.id}`)}
+                            onClick={() => navigate(`/clinical-records/${therapy.clinicalRecord?.id}`)}
                             className="text-sm text-blue-600 hover:text-blue-800 mt-2"
                           >
                             Vai alla cartella clinica →
