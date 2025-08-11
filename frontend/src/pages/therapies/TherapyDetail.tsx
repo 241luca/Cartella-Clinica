@@ -57,7 +57,6 @@ const TherapyDetail: React.FC = () => {
       if (response.data && response.data.success) {
         // L'API restituisce { therapy: ... } nell'oggetto data
         const therapyData = response.data.data.therapy || response.data.data;
-        console.log('Therapy data received:', therapyData);
         setTherapy(therapyData);
         
         // Se ci sono sessioni incluse, usale
@@ -350,7 +349,7 @@ const TherapyDetail: React.FC = () => {
                     <div className="w-full bg-gray-100 rounded-full h-3">
                       <div
                         className="h-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all"
-                        style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                        style={{ width: `${Math.min(isNaN(progressPercentage) ? 0 : progressPercentage, 100)}%` }}
                       ></div>
                     </div>
                   </div>
@@ -470,15 +469,15 @@ const TherapyDetail: React.FC = () => {
                                   <div className="flex items-center gap-4 text-sm">
                                     <div>
                                       <span className="text-gray-600">VAS prima: </span>
-                                      <span className="font-medium">{session.vasScoreBefore}/10</span>
+                                      <span className="font-medium">{session.vasScoreBefore || 0}/10</span>
                                     </div>
                                     <div>
                                       <span className="text-gray-600">VAS dopo: </span>
-                                      <span className="font-medium">{session.vasScoreAfter}/10</span>
+                                      <span className="font-medium">{session.vasScoreAfter || 0}/10</span>
                                     </div>
                                     <div>
                                       <span className="text-gray-600">Durata: </span>
-                                      <span className="font-medium">{session.duration} min</span>
+                                      <span className="font-medium">{session.duration || 0} min</span>
                                     </div>
                                   </div>
                                   {session.treatmentDetails && (
@@ -531,21 +530,21 @@ const TherapyDetail: React.FC = () => {
                               <div key={session.id} className="flex items-center gap-4">
                                 <span className="text-sm text-gray-600 w-20">Seduta {session.sessionNumber}</span>
                                 <div className="flex-1 flex items-center gap-2">
-                                  <span className="text-sm font-medium">{session.vasScoreBefore}</span>
+                                  <span className="text-sm font-medium">{session.vasScoreBefore || 0}</span>
                                   <div className="flex-1 bg-gray-200 rounded-full h-2 relative">
                                     <div 
                                       className="absolute top-0 left-0 h-2 bg-red-400 rounded-full"
-                                      style={{ width: `${session.vasScoreBefore * 10}%` }}
+                                      style={{ width: `${(session.vasScoreBefore || 0) * 10}%` }}
                                     ></div>
                                   </div>
                                   <span className="text-sm">→</span>
                                   <div className="flex-1 bg-gray-200 rounded-full h-2 relative">
                                     <div 
                                       className="absolute top-0 left-0 h-2 bg-green-400 rounded-full"
-                                      style={{ width: `${session.vasScoreAfter * 10}%` }}
+                                      style={{ width: `${(session.vasScoreAfter || 0) * 10}%` }}
                                     ></div>
                                   </div>
-                                  <span className="text-sm font-medium">{session.vasScoreAfter}</span>
+                                  <span className="text-sm font-medium">{session.vasScoreAfter || 0}</span>
                                 </div>
                               </div>
                             ))}
@@ -558,8 +557,8 @@ const TherapyDetail: React.FC = () => {
                         <div className="grid grid-cols-3 gap-4">
                           <div className="bg-green-50 rounded-lg p-4 text-center">
                             <p className="text-2xl font-bold text-green-700">
-                              {completedSessions.length > 0 && completedSessions[0].vasScoreBefore
-                                ? Math.round(((completedSessions[0].vasScoreBefore - completedSessions[completedSessions.length - 1].vasScoreAfter) / completedSessions[0].vasScoreBefore) * 100)
+                              {completedSessions.length > 0 && completedSessions[0].vasScoreBefore && completedSessions[0].vasScoreBefore > 0
+                                ? Math.round((((completedSessions[0].vasScoreBefore || 0) - (completedSessions[completedSessions.length - 1].vasScoreAfter || 0)) / completedSessions[0].vasScoreBefore) * 100)
                                 : 0}%
                             </p>
                             <p className="text-sm text-green-600 mt-1">Miglioramento VAS</p>
