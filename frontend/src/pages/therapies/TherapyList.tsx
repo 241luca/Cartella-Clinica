@@ -25,6 +25,7 @@ import therapyService from '../../services/therapyService';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import NewTherapyWizard from '../../components/therapy/NewTherapyWizard';
 
 interface TherapyWithDetails {
   id: string;
@@ -59,6 +60,7 @@ const TherapyList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed' | 'suspended'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showTherapyWizard, setShowTherapyWizard] = useState(false);
 
   const therapiesPerPage = 12;
 
@@ -69,18 +71,41 @@ const TherapyList: React.FC = () => {
   const loadTherapies = async () => {
     try {
       setLoading(true);
+      
+      // Mappa il filtro stato ai valori corretti del database
+      let apiStatus = statusFilter;
+      if (statusFilter === 'active') apiStatus = 'IN_PROGRESS';
+      if (statusFilter === 'completed') apiStatus = 'COMPLETED';
+      if (statusFilter === 'suspended') apiStatus = 'CANCELLED';
+      
       const response = await therapyService.getAll({
         page: currentPage,
         limit: therapiesPerPage,
         search: searchTerm,
-        status: statusFilter,
+        status: apiStatus,
       });
-      setTherapies(response.therapies || getMockTherapies());
-      setTotalPages(response.totalPages || 2);
+      
+      console.log('Therapies API Response:', response);
+      
+      // Il servizio restituisce response.data
+      if (response.data) {
+        if (response.data.success) {
+          setTherapies(response.data.data || []);
+          if (response.data.pagination) {
+            setTotalPages(response.data.pagination.pages || 1);
+          }
+        } else if (response.data.data) {
+          // Formato alternativo
+          setTherapies(response.data.data);
+          setTotalPages(response.data.pagination?.pages || 1);
+        }
+      }
     } catch (error) {
       console.error('Errore caricamento terapie:', error);
-      setTherapies(getMockTherapies());
-      setTotalPages(2);
+      toast.error('Errore nel caricamento delle terapie');
+      // NON usare dati mock
+      setTherapies([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -124,6 +149,8 @@ const TherapyList: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'IN_PROGRESS':
+      case 'SCHEDULED':
       case 'ACTIVE':
         return (
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50" title="In Corso">
@@ -137,6 +164,7 @@ const TherapyList: React.FC = () => {
           </span>
         );
       case 'SUSPENDED':
+      case 'CANCELLED':
         return (
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-50" title="Sospesa">
             <PauseCircle className="w-4 h-4 text-amber-600" />
@@ -179,7 +207,7 @@ const TherapyList: React.FC = () => {
     );
   }
 
-  const activeTherapies = therapies.filter(t => t.status === 'ACTIVE').length;
+  const activeTherapies = therapies.filter(t => t.status === 'IN_PROGRESS' || t.status === 'SCHEDULED').length;
   const completedTherapies = therapies.filter(t => t.status === 'COMPLETED').length;
   const totalSessions = therapies.reduce((sum, t) => sum + t.prescribedSessions, 0);
   const completedSessions = therapies.reduce((sum, t) => sum + t.completedSessions, 0);
@@ -213,7 +241,7 @@ const TherapyList: React.FC = () => {
                 Calendario
               </button>
               <button
-                onClick={() => navigate('/therapies/new')}
+                onClick={() => setShowTherapyWizard(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm"
               >
                 <Plus className="w-4 h-4" />
@@ -409,6 +437,17 @@ const TherapyList: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Therapy Wizard */}
+      <NewTherapyWizard
+        isOpen={showTherapyWizard}
+        onClose={() => setShowTherapyWizard(false)}
+        onSuccess={(therapy) => {
+          toast.success('Terapia creata con successo!');
+          loadTherapies(); // Ricarica la lista
+          setShowTherapyWizard(false);
+        }}
+      />
     </AppLayout>
   );
 };
