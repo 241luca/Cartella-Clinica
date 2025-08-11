@@ -187,7 +187,10 @@ const ClinicalRecordList: React.FC = () => {
       <div className="p-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div 
+            onClick={() => setStatusFilter('all')}
+            className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -197,7 +200,10 @@ const ClinicalRecordList: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">{totalRecords}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div 
+            onClick={() => setStatusFilter('open')}
+            className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
                 <FileCheck className="w-5 h-5 text-green-600" />
@@ -207,7 +213,10 @@ const ClinicalRecordList: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">{openRecords}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div 
+            onClick={() => setStatusFilter('closed')}
+            className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
                 <Lock className="w-5 h-5 text-gray-600" />
@@ -217,7 +226,13 @@ const ClinicalRecordList: React.FC = () => {
             <p className="text-2xl font-bold text-gray-900">{closedRecords}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div 
+            onClick={() => {
+              setStatusFilter('open');
+              // Potremmo aggiungere un filtro specifico per incomplete in futuro
+            }}
+            className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 text-amber-600" />
