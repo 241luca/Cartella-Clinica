@@ -1,4 +1,4 @@
-# Report Sviluppo - 13 Gennaio 2025
+# Report Sviluppo - 10 Agosto 2025
 
 ## 🎯 Obiettivo della Sessione
 Rimozione completa di tutti i dati mock dal sistema e collegamento completo al database PostgreSQL reale.
@@ -161,7 +161,7 @@ therapy = {
 Luca Mambelli
 
 ## 📅 Data
-13 Gennaio 2025
+10 Agosto 2025
 
 ---
 

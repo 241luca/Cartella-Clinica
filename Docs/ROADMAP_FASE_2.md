@@ -302,10 +302,10 @@ GET    /api/ai/predict-outcome/:therapyId
 
 ---
 
-**📅 Data: 14 Gennaio 2025**  
+**📅 Data: 11 Agosto 2025**  
 **👨‍💻 Developer: Luca Mambelli**  
 **📊 Versione Target: 2.0.0**  
-**🎯 Go-Live Stimato: Aprile 2025**
+**🎯 Go-Live Stimato: Novembre 2025**
 
 ## 🏆 VISION FINALE
 

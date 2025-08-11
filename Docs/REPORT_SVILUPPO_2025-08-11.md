@@ -1,4 +1,4 @@
-# Report Sviluppo - 14 Gennaio 2025
+# Report Sviluppo - 11 Agosto 2025
 
 ## 🎯 Obiettivo della Sessione
 Correzione del problema delle sessioni non visibili nel dettaglio terapia e completamento del sistema.
@@ -145,7 +145,7 @@ npx prisma studio
 Luca Mambelli (con assistenza AI)
 
 ## 📅 Data
-14 Gennaio 2025
+11 Agosto 2025
 
 ---
 
