@@ -1,31 +1,33 @@
 # Configurazione GitHub - Cartella Clinica
 
-## ⚠️ IMPORTANTE: SICUREZZA CREDENZIALI
+## ✅ CONFIGURAZIONE ATTUALE: SSH GIÀ CONFIGURATO!
 
-**MAI** includere token o password nel codice o nei commit!
+**La configurazione SSH è già attiva e funzionante.**
+**NON serve configurare nulla, NON serve password!**
 
-## Configurazione Raccomandata
+## 🚀 COMANDI DA USARE (SENZA PASSWORD)
 
-### Opzione 1: GitHub CLI (Consigliata)
 ```bash
-# Installa GitHub CLI
-brew install gh
+# Push semplice - NESSUNA PASSWORD RICHIESTA
+git push origin main
 
-# Autenticati
-gh auth login
-
-# Segui le istruzioni interattive
+# Pull semplice - NESSUNA PASSWORD RICHIESTA
+git pull origin main
 ```
 
-### Opzione 2: SSH Key
+## ⚠️ IMPORTANTE
+
+- **SSH è GIÀ configurato** - Non toccare nulla
+- **Nessuna password necessaria** - Funziona automaticamente
+- **Nessun token necessario** - Usa SSH
+
+## Configurazione Attuale
+
+### SSH Key (GIÀ CONFIGURATA)
 ```bash
-# Genera chiave SSH
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# Aggiungi a GitHub: Settings → SSH Keys
-
-# Configura remote
-git remote set-url origin git@github.com:241luca/cartella-clinica.git
+# Remote già configurato come SSH
+# URL: git@github.com:241luca/cartella-clinica.git
+# Tutto funziona senza password!
 ```
 
 ### Opzione 3: Personal Access Token
