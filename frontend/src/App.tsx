@@ -15,6 +15,7 @@ const ClinicalRecordForm = React.lazy(() => import('./pages/clinical-records/Cli
 const ClinicalRecordDetail = React.lazy(() => import('./pages/clinical-records/ClinicalRecordDetail'));
 const TherapyForm = React.lazy(() => import('./pages/therapies/TherapyForm'));
 const TherapyList = React.lazy(() => import('./pages/therapies/TherapyList'));
+const TherapyDetail = React.lazy(() => import('./pages/therapies/TherapyDetail'));
 const CalendarPage = React.lazy(() => import('./pages/calendar/CalendarPage'));
 const TherapyCalendar = React.lazy(() => import('./pages/therapies/TherapyCalendar'));
 const ReportCenter = React.lazy(() => import('./pages/reports/ReportCenter'));
@@ -127,6 +128,7 @@ function App() {
                   {/* Terapie */}
                   <Route path="/therapies" element={<TherapyList />} />
                   <Route path="/therapies/new" element={<TherapyForm />} />
+                  <Route path="/therapies/:id" element={<TherapyDetail />} />
                   <Route path="/therapies/:id/edit" element={<TherapyForm />} />
                   <Route path="/calendar" element={<CalendarPage />} />
                   

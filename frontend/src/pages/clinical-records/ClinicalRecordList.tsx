@@ -37,6 +37,8 @@ const ClinicalRecordList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [openRecordsCount, setOpenRecordsCount] = useState(0);
+  const [closedRecordsCount, setClosedRecordsCount] = useState(0);
 
   const recordsPerPage = 10;
 
@@ -59,6 +61,27 @@ const ClinicalRecordList: React.FC = () => {
         setRecords(response.data || []);
         setTotalPages(response.pagination?.pages || 1);
         setTotalRecords(response.pagination?.total || 0);
+        
+        // Carica i contatori separatamente per avere i totali corretti
+        if (statusFilter === 'all') {
+          const openResponse = await clinicalRecordService.getAll({
+            page: 1,
+            limit: 1,
+            status: 'open'
+          });
+          const closedResponse = await clinicalRecordService.getAll({
+            page: 1,
+            limit: 1,
+            status: 'closed'
+          });
+          
+          setOpenRecordsCount(openResponse.pagination?.total || 0);
+          setClosedRecordsCount(closedResponse.pagination?.total || 0);
+        } else if (statusFilter === 'open') {
+          setOpenRecordsCount(response.pagination?.total || 0);
+        } else if (statusFilter === 'closed') {
+          setClosedRecordsCount(response.pagination?.total || 0);
+        }
       }
     } catch (error) {
       console.error('Errore caricamento cartelle:', error);
@@ -66,6 +89,8 @@ const ClinicalRecordList: React.FC = () => {
       setRecords(getMockRecords());
       setTotalPages(2);
       setTotalRecords(15);
+      setOpenRecordsCount(10);
+      setClosedRecordsCount(5);
     } finally {
       setLoading(false);
     }
@@ -120,16 +145,14 @@ const ClinicalRecordList: React.FC = () => {
   const getStatusBadge = (status: string) => {
     if (status === 'OPEN') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-          <Unlock className="w-3 h-3" />
-          Aperta
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-50" title="Aperta">
+          <Unlock className="w-4 h-4 text-green-600" />
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-        <Lock className="w-3 h-3" />
-        Chiusa
+      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100" title="Chiusa">
+        <Lock className="w-4 h-4 text-gray-600" />
       </span>
     );
   };
@@ -150,8 +173,7 @@ const ClinicalRecordList: React.FC = () => {
     );
   }
 
-  const openRecords = records.filter(r => r.isActive === true || r.status === 'OPEN').length;
-  const closedRecords = records.filter(r => r.isActive === false || r.status === 'CLOSED').length;
+  const incompleteRecords = records.filter(r => (r.isActive === true || r.status === 'OPEN') && (!r.diagnosis || !r.symptomatology)).length;
 
   return (
     <AppLayout>
@@ -210,7 +232,7 @@ const ClinicalRecordList: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-1">Aperte</p>
-            <p className="text-2xl font-bold text-gray-900">{openRecords}</p>
+            <p className="text-2xl font-bold text-gray-900">{openRecordsCount || '-'}</p>
           </div>
 
           <div 
@@ -223,7 +245,7 @@ const ClinicalRecordList: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-1">Chiuse</p>
-            <p className="text-2xl font-bold text-gray-900">{closedRecords}</p>
+            <p className="text-2xl font-bold text-gray-900">{closedRecordsCount || '-'}</p>
           </div>
 
           <div 
@@ -239,9 +261,7 @@ const ClinicalRecordList: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-1">Da Completare</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {records.filter(r => (r.isActive === true || r.status === 'OPEN') && (!r.diagnosis || !r.symptomatology)).length}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{incompleteRecords}</p>
           </div>
         </div>
 
@@ -280,7 +300,12 @@ const ClinicalRecordList: React.FC = () => {
             <div
               key={record.id}
               className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer group"
-              onClick={() => navigate(`/clinical-records/${record.id}`)}
+              onClick={() => {
+                const url = `/clinical-records/${record.id}`;
+                console.log('Navigating to:', url);
+                console.log('Record ID:', record.id);
+                navigate(url);
+              }}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -345,48 +370,61 @@ const ClinicalRecordList: React.FC = () => {
           ))}
         </div>
 
-        {/* Pagination */}
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-gray-700">
-            Mostrando <span className="font-medium">{(currentPage - 1) * recordsPerPage + 1}</span> a{' '}
-            <span className="font-medium">
-              {Math.min(currentPage * recordsPerPage, totalRecords)}
-            </span>{' '}
-            di <span className="font-medium">{totalRecords}</span> risultati
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
-                    currentPage === pageNum
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+        {/* Empty State */}
+        {records.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">Nessuna cartella clinica trovata</p>
+            <p className="text-gray-400 text-sm mt-2">
+              {statusFilter !== 'all' ? 'Prova a cambiare i filtri' : 'Crea la prima cartella clinica'}
+            </p>
           </div>
-        </div>
+        )}
+
+        {/* Pagination */}
+        {records.length > 0 && (
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-sm text-gray-700">
+              Mostrando <span className="font-medium">{(currentPage - 1) * recordsPerPage + 1}</span> a{' '}
+              <span className="font-medium">
+                {Math.min(currentPage * recordsPerPage, totalRecords)}
+              </span>{' '}
+              di <span className="font-medium">{totalRecords}</span> risultati
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </AppLayout>

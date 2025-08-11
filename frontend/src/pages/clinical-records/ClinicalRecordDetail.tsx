@@ -5,7 +5,7 @@ import {
   ArrowLeft,
   Edit,
   Download,
-  Print,
+  Printer,
   Calendar,
   User,
   FileText,
@@ -234,7 +234,7 @@ const ClinicalRecordDetail: React.FC = () => {
                 onClick={handlePrint}
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
               >
-                <Print className="w-4 h-4" />
+                <Printer className="w-4 h-4" />
                 Stampa
               </button>
               <button

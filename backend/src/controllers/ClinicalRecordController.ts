@@ -36,7 +36,7 @@ export class ClinicalRecordController {
       const where: any = {};
 
       // Filtro per stato
-      if (status === 'active') {
+      if (status === 'active' || status === 'open') {
         where.isActive = true;
       } else if (status === 'closed') {
         where.isActive = false;
