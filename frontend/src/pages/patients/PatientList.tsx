@@ -74,17 +74,27 @@ const PatientList: React.FC = () => {
       });
 
       const response = await api.get(`/patients?${params}`);
+      console.log('API Response:', response.data);
       
       if (response.data.success) {
         setPatients(response.data.data || []);
         setTotalPages(response.data.pagination?.pages || 1);
         setTotalPatients(response.data.pagination?.total || 0);
+      } else if (response.data.data) {
+        // Gestisci formato alternativo della risposta
+        setPatients(response.data.data);
+        if (response.data.pagination) {
+          setTotalPages(response.data.pagination.pages || 1);
+          setTotalPatients(response.data.pagination.total || 0);
+        }
       }
     } catch (error) {
       console.error('Errore caricamento pazienti:', error);
-      setPatients(getMockPatients());
-      setTotalPages(2);
-      setTotalPatients(20);
+      toast.error('Errore nel caricamento dei pazienti');
+      // NON caricare dati mock - mostra errore invece
+      setPatients([]);
+      setTotalPages(1);
+      setTotalPatients(0);
     } finally {
       setLoading(false);
     }
