@@ -44,11 +44,14 @@ async function testSearch() {
         const fullName = `${firstName} ${lastName}`;
         const reverseName = `${lastName} ${firstName}`;
         
-        let foundIn = [];
+        const foundIn = [];
         if (firstName.includes(searchStr)) foundIn.push('nome');
         if (lastName.includes(searchStr)) foundIn.push('cognome');
         if (fullName.includes(searchStr) && !firstName.includes(searchStr) && !lastName.includes(searchStr)) {
           foundIn.push('nome+cognome');
+        }
+        if (reverseName.includes(searchStr) && !firstName.includes(searchStr) && !lastName.includes(searchStr)) {
+          foundIn.push('cognome+nome');
         }
         
         console.log(`   - ${p.firstName} ${p.lastName} (trovato in: ${foundIn.join(', ')})`);
