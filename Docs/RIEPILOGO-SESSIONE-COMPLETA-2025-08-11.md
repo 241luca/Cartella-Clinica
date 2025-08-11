@@ -205,7 +205,7 @@
 ## 📞 INFORMAZIONI UTILI
 
 - **Progetto**: `/Users/lucamambelli/Desktop/Cartella-Clinica`
-- **GitHub**: https://github.com/241luca/cartella-clinica
+- **GitHub**: https://github.com/241luca/cartella-clinica (SSH configurato - NO PASSWORD!)
 - **Backend**: localhost:3100
 - **Frontend**: localhost:5183
 - **Database**: PostgreSQL

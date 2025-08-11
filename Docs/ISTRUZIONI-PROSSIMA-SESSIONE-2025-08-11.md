@@ -194,12 +194,17 @@ cd /Users/lucamambelli/Desktop/Cartella-Clinica/backend
 npx ts-node src/scripts/testSystem.ts
 ```
 
-### Git:
+### Git (SSH già configurato - NO PASSWORD!):
 ```bash
 cd /Users/lucamambelli/Desktop/Cartella-Clinica
 git add -A
 git commit -m "feat: [descrizione]"
+
+# Push semplice - NESSUNA PASSWORD RICHIESTA
 git push origin main
+
+# Pull semplice - NESSUNA PASSWORD RICHIESTA  
+git pull origin main
 ```
 
 ---
@@ -244,7 +249,7 @@ git push origin main
 - **Backend**: http://localhost:3100
 - **Frontend**: http://localhost:5183
 - **Prisma Studio**: http://localhost:5555
-- **GitHub**: 241luca (SSH configurato)
+- **GitHub**: 241luca (SSH configurato - NO PASSWORD NECESSARIA!)
 - **Deadline**: 25 Agosto 2025
 
 ---
@@ -277,6 +282,9 @@ DA FARE:
 
 Il backend gira su porta 3100, frontend su 5183.
 Credenziali: admin@medicinaravenna.it / admin123
+
+GitHub è configurato con SSH - NO PASSWORD necessaria!
+Usare: git push origin main (senza password)
 
 Non ho esperienza di programmazione, parla in modo semplice.
 ```
