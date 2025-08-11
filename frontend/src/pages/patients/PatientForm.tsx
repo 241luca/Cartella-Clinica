@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AppLayout from '../../components/layout/AppLayout';
 import {
   Save,
   X,
@@ -191,7 +192,8 @@ const PatientForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AppLayout>
+      <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -615,6 +617,7 @@ const PatientForm: React.FC = () => {
         </form>
       </div>
     </div>
+    </AppLayout>
   );
 };
 
