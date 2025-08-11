@@ -55,7 +55,9 @@ const TherapyDetail: React.FC = () => {
       const response = await therapyService.getById(id!);
       
       if (response.data && response.data.success) {
-        const therapyData = response.data.data;
+        // L'API restituisce { therapy: ... } nell'oggetto data
+        const therapyData = response.data.data.therapy || response.data.data;
+        console.log('Therapy data received:', therapyData);
         setTherapy(therapyData);
         
         // Se ci sono sessioni incluse, usale
