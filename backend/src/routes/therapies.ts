@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { TherapyController } from '../controllers/TherapyController';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 const router = Router();
 
 // Applica autenticazione a tutte le route
-router.use(authMiddleware);
+router.use(AuthMiddleware.authenticate);
 
 // Route per i tipi di terapia (deve essere prima di /:id per evitare conflitti)
 router.get('/therapy-types', TherapyController.getTherapyTypes);
