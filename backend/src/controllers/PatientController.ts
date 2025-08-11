@@ -53,15 +53,15 @@ export class PatientController {
           const lastName = patient.lastName.toLowerCase();
           const fullName = `${firstName} ${lastName}`;
           const reverseName = `${lastName} ${firstName}`;
-          const fiscalCode = patient.fiscalCode.toLowerCase();
+          // RIMOSSO: fiscalCode dalla ricerca
           
           // Controlla se la stringa di ricerca è contenuta ESATTAMENTE in:
           return (
             firstName.includes(searchStr) ||           // substring esatta nel nome
             lastName.includes(searchStr) ||            // substring esatta nel cognome
             fullName.includes(searchStr) ||            // substring esatta in "nome cognome"
-            reverseName.includes(searchStr) ||         // substring esatta in "cognome nome"
-            fiscalCode.includes(searchStr)             // substring esatta nel codice fiscale
+            reverseName.includes(searchStr)            // substring esatta in "cognome nome"
+            // RIMOSSO: fiscalCode.includes(searchStr)
           );
         });
         

@@ -97,14 +97,14 @@ export class ClinicalRecordController {
             const lastName = record.patient.lastName.toLowerCase();
             const fullName = `${firstName} ${lastName}`;
             const reverseName = `${lastName} ${firstName}`;
-            const fiscalCode = record.patient.fiscalCode.toLowerCase();
+            // RIMOSSO: fiscalCode dalla ricerca
             
             if (
               firstName.includes(searchStr) ||
               lastName.includes(searchStr) ||
               fullName.includes(searchStr) ||
-              reverseName.includes(searchStr) ||
-              fiscalCode.includes(searchStr)
+              reverseName.includes(searchStr)
+              // RIMOSSO: fiscalCode.includes(searchStr)
             ) {
               return true;
             }
