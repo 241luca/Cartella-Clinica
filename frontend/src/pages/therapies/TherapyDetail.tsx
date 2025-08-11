@@ -181,9 +181,9 @@ const TherapyDetail: React.FC = () => {
     );
   }
 
-  const progressPercentage = (therapy.completedSessions / therapy.prescribedSessions) * 100;
-  const completedSessions = sessions.filter(s => s.completed);
-  const nextSession = sessions.find(s => !s.completed);
+  const progressPercentage = therapy ? (therapy.completedSessions / therapy.prescribedSessions) * 100 : 0;
+  const completedSessions = sessions && Array.isArray(sessions) ? sessions.filter(s => s.completed) : [];
+  const nextSession = sessions && Array.isArray(sessions) ? sessions.find(s => !s.completed) : null;
 
   return (
     <AppLayout>
@@ -201,7 +201,7 @@ const TherapyDetail: React.FC = () => {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-semibold text-gray-900">
-                    Terapia - {therapy.therapyType.name}
+                    Terapia - {therapy.therapyType?.name || 'Terapia'}
                   </h1>
                   {getStatusBadge(therapy.status)}
                 </div>
@@ -302,8 +302,8 @@ const TherapyDetail: React.FC = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Tipo</p>
-                    <p className="text-gray-900 font-medium">{therapy.therapyType.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">{therapy.therapyType.description}</p>
+                    <p className="text-gray-900 font-medium">{therapy.therapyType?.name || 'N/D'}</p>
+                    <p className="text-xs text-gray-500 mt-1">{therapy.therapyType?.description || ''}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Frequenza</p>
@@ -424,7 +424,8 @@ const TherapyDetail: React.FC = () => {
                   {/* Tab Sedute */}
                   {activeTab === 'sessions' && (
                     <div className="space-y-3">
-                      {sessions.map((session) => (
+                      {sessions && sessions.length > 0 ? (
+                        sessions.map((session) => (
                         <div
                           key={session.id}
                           className={`border rounded-lg p-4 ${
@@ -506,7 +507,12 @@ const TherapyDetail: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                      ))}
+                      ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <p>Nessuna seduta programmata</p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -578,12 +584,16 @@ const TherapyDetail: React.FC = () => {
                           Obiettivi del trattamento
                         </h4>
                         <div className="space-y-2">
-                          {therapy.objectives?.map((objective: string, index: number) => (
-                            <div key={index} className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                              <p className="text-sm text-gray-700">{objective}</p>
-                            </div>
-                          ))}
+                          {(therapy.objectives && Array.isArray(therapy.objectives)) ? (
+                            therapy.objectives.map((objective: string, index: number) => (
+                              <div key={index} className="flex items-start gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                                <p className="text-sm text-gray-700">{objective}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500 italic">Nessun obiettivo specificato</p>
+                          )}
                         </div>
                       </div>
 
