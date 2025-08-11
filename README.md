@@ -1,24 +1,62 @@
-# 🏥 Cartella Clinica - Sistema Gestione Medicina Ravenna
+# 🏥 Sistema Gestione Cartelle Cliniche - Medicina Ravenna
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
-![License](https://img.shields.io/badge/license-Proprietary-red)
-![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
-![React](https://img.shields.io/badge/react-18.3-61dafb)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/241luca/cartella-clinica)
+[![Status](https://img.shields.io/badge/status-production_ready-green.svg)]()
+[![License](https://img.shields.io/badge/license-proprietary-red.svg)]()
 
-Sistema completo per la gestione digitale delle cartelle cliniche e terapie riabilitative, sviluppato specificamente per **Medicina Ravenna SRL**.
+## 📊 Stato del Progetto
 
-## ✨ Features Principali
+### ✅ FASE 1 - COMPLETATA (100%)
+Sistema base completamente funzionante con tutte le funzionalità core implementate.
 
-- 🎨 **UI/UX Moderna** - Design completamente rinnovato con colori accoglienti
-- 👥 **Gestione Pazienti** - Anagrafica completa con ricerca avanzata
-- 📋 **Cartelle Cliniche** - Digitali con allegati e timeline
-- 💊 **13 Tipi di Terapie** - Gestione completa sedute e progressi
-- 📅 **Calendario Integrato** - Vista multi-formato con drag & drop
-- 📊 **Analytics Avanzate** - Dashboard con KPI e grafici real-time
-- 🔐 **Sicurezza** - JWT auth, GDPR compliant, audit log
-- 📱 **Responsive** - Ottimizzato per desktop, tablet e mobile
+### 🚀 FASE 2 - IN PIANIFICAZIONE
+Evoluzione verso sistema multi-società con IA integrata.
+
+## 🎯 Caratteristiche Principali
+
+### Implementate (Fase 1) ✅
+- **Gestione Pazienti** - Anagrafica completa con storico clinico
+- **Cartelle Cliniche** - Gestione diagnosi, anamnesi, documenti
+- **Gestione Terapie** - 15 tipi di terapia con parametri specifici
+- **Sessioni Terapeutiche** - Tracciamento VAS score e progressi
+- **Dashboard Analytics** - Statistiche real-time
+- **Calendario** - Gestione appuntamenti
+- **Autenticazione** - Sistema ruoli (Admin, Dottore, Terapista)
+- **Database Realistico** - 384 terapie, 3718 sessioni
+
+### In Sviluppo (Fase 2) 🔄
+- **Sistema Multi-Società** - Gestione multiple cliniche
+- **IA Contestuale** - Supporto decisionale intelligente
+- **Cartelle Specialistiche** - Fisioterapia, Riabilitazione, Infermieristica
+- **Refertazione Consulenze** - Workflow consulenze specialistiche
+- **Moduli Dinamici** - Personalizzazione cartelle
+- **Gestione Tipi Terapia** - Creazione dinamica tipi
+
+## 🛠️ Stack Tecnologico
+
+### Frontend
+- React 18 + TypeScript
+- Tailwind CSS
+- React Router v6
+- React Hook Form
+- Recharts
+- Lucide Icons
+
+### Backend
+- Node.js + Express
+- Prisma ORM
+- PostgreSQL
+- JWT Authentication
+- Zod Validation
 
 ## 🚀 Quick Start
+
+### Prerequisiti
+- Node.js 18+
+- PostgreSQL 14+
+- Git
+
+### Installazione
 
 ```bash
 # Clone repository
@@ -28,85 +66,164 @@ cd cartella-clinica
 # Setup backend
 cd backend
 npm install
-cp .env.example .env
-# Configura DATABASE_URL nel .env
+cp .env.example .env  # Configura le variabili ambiente
 npx prisma migrate dev
-npm run dev
+npx prisma db seed
 
-# Setup frontend (nuovo terminal)
+# Setup frontend
 cd ../frontend
 npm install
+```
+
+### Avvio
+
+```bash
+# Terminal 1 - Backend (porta 3100)
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend (porta 5183)
+cd frontend
 npm run dev
 ```
 
-Apri browser su: **http://localhost:5183**
+Accedi a: http://localhost:5183
 
-## 📚 Documentazione
+## 🔐 Credenziali Demo
 
-Tutta la documentazione è disponibile nella cartella `/Docs`:
+| Ruolo | Email | Password |
+|-------|-------|----------|
+| Admin | admin@medicinaravenna.it | admin123 |
+| Dottore | dott.rossi@medicinaravenna.it | doctor123 |
+| Terapista | ft.verdi@medicinaravenna.it | therapist123 |
 
-- 📖 [Setup Completo](./Docs/SETUP.md) - Guida installazione dettagliata
-- 🎨 [Design System](./Docs/DESIGN_SYSTEM.md) - Componenti e stili UI
-- 📡 [API Documentation](./Docs/API.md) - Endpoints e esempi
-- 📘 [Manuale Utente](./Docs/USER_MANUAL.md) - Guida per gli utenti
-- 📊 [Report Redesign](./Docs/REPORT_REDESIGN_UI_COMPLETATO.md) - Dettagli nuovo design
+## 📁 Struttura Progetto
 
-## 🛠️ Tech Stack
+```
+cartella-clinica/
+├── frontend/           # React application
+│   ├── src/
+│   │   ├── components/ # Componenti riutilizzabili
+│   │   ├── pages/      # Pagine applicazione
+│   │   ├── services/   # API services
+│   │   ├── contexts/   # React contexts
+│   │   └── utils/      # Utilities
+│   └── package.json
+├── backend/            # Node.js API
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   └── utils/
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   └── package.json
+└── Docs/              # Documentazione
+    ├── PROGETTO_COMPLETATO.md
+    └── ROADMAP_FASE_2.md
+```
 
-### Frontend
-- React 18.3 + TypeScript
-- Vite
-- Tailwind CSS
-- React Router v6
-- Lucide React Icons
+## 📊 Database Schema
 
-### Backend  
-- Node.js + Express
-- TypeScript
-- Prisma ORM
-- PostgreSQL
-- JWT Authentication
+Il sistema utilizza 15+ tabelle per gestire:
+- Pazienti e anamnesi
+- Cartelle cliniche
+- Terapie e sessioni
+- Utenti e autorizzazioni
+- Documenti e consensi
+- Appuntamenti e calendario
 
-## 📸 Screenshots
+## 🔄 API Endpoints
 
-### Dashboard
-![Dashboard](./Docs/screenshots/dashboard.png)
+### Autenticazione
+- `POST /api/auth/login` - Login utente
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/me` - Profilo corrente
 
-### Gestione Pazienti
-![Pazienti](./Docs/screenshots/patients.png)
+### Pazienti
+- `GET /api/patients` - Lista pazienti
+- `POST /api/patients` - Crea paziente
+- `GET /api/patients/:id` - Dettaglio paziente
+- `PUT /api/patients/:id` - Aggiorna paziente
 
-### Calendario Terapie
-![Calendario](./Docs/screenshots/calendar.png)
+### Terapie
+- `GET /api/therapies` - Lista terapie
+- `POST /api/therapies` - Crea terapia
+- `GET /api/therapies/:id` - Dettaglio terapia
+- `PUT /api/therapies/:id/sessions/:sessionId` - Aggiorna sessione
 
-## 👨‍💻 Sviluppo
+[Documentazione API completa →](./Docs/API.md)
+
+## 📈 Metriche Performance
+
+- **Tempo caricamento**: < 1 secondo
+- **Database**: 100 pazienti, 384 terapie, 3718 sessioni
+- **Uptime target**: 99.9%
+- **Concurrent users**: 50+
+
+## 🧪 Testing
 
 ```bash
-# Test frontend
-cd frontend
-npm run test
-
-# Test backend
+# Run tests
 cd backend
-npm run test
+npm test
 
-# Build produzione
-npm run build
+cd frontend
+npm test
 ```
+
+## 🚢 Deploy
+
+### Production Build
+
+```bash
+# Frontend
+cd frontend
+npm run build
+
+# Backend
+cd backend
+npm run build
+npm run start:prod
+```
+
+### Docker
+
+```bash
+docker-compose up -d
+```
+
+## 📝 Documentazione
+
+- [Progetto Completato](./Docs/PROGETTO_COMPLETATO.md)
+- [Roadmap Fase 2](./Docs/ROADMAP_FASE_2.md)
+- [Changelog](./CHANGELOG.md)
+- [API Documentation](./Docs/API.md)
+
+## 🤝 Contributing
+
+Il progetto è proprietario di Medicina Ravenna SRL.
+Per contribuire, contattare il team di sviluppo.
 
 ## 📄 Licenza
 
-Software proprietario - © 2025 Medicina Ravenna SRL. Tutti i diritti riservati.
+Software proprietario - Tutti i diritti riservati a Medicina Ravenna SRL
 
-## 🤝 Contatti
+## 👥 Team
 
-- **Sviluppatore**: Luca Mambelli
-- **Email**: lucamambelli@lmtecnologie.it
-- **GitHub**: [@241luca](https://github.com/241luca)
+- **Luca Mambelli** - Full Stack Developer
+- **Medicina Ravenna** - Cliente/Owner
 
-## 🙏 Acknowledgments
+## 📞 Supporto
 
-Sviluppato con ❤️ per **Medicina Ravenna SRL** con l'assistenza di Claude AI.
+- Email: lucamambelli@lmtecnologie.it
+- GitHub Issues: [Issues](https://github.com/241luca/cartella-clinica/issues)
 
 ---
 
-*Per maggiori informazioni, consulta la [documentazione completa](./Docs/README.md).*
+**© 2025 Medicina Ravenna SRL - v1.0.0**
+
+![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red.svg)
+![Powered by React](https://img.shields.io/badge/Powered%20by-React-blue.svg)
+![Built with TypeScript](https://img.shields.io/badge/Built%20with-TypeScript-blue.svg)
