@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { addDays, subMonths } from 'date-fns';
 
@@ -566,7 +566,7 @@ async function main() {
                 power: (therapy.parameters as any)?.power || 100,
                 duration: therapyType.defaultDuration,
                 area: therapy.district,
-              } : null,
+              } as Prisma.InputJsonValue : undefined,
               therapistSignature: isCompleted ? therapist.id : null,
               signedAt: isCompleted ? sessionDate : null,
             },
