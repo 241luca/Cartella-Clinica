@@ -130,7 +130,6 @@ const PatientDetail: React.FC = () => {
       
       // Carica dati paziente
       const patientRes = await api.get(`/patients/${id}`);
-      console.log('Patient API Response:', patientRes.data);
       
       if (patientRes.data.success && patientRes.data.data) {
         setPatient(patientRes.data.data);
@@ -138,12 +137,10 @@ const PatientDetail: React.FC = () => {
         // Carica cartelle cliniche se il paziente esiste
         try {
           const recordsRes = await api.get(`/patients/${id}/clinical-records`);
-          console.log('Clinical Records Response:', recordsRes.data);
           if (recordsRes.data.success) {
             setClinicalRecords(recordsRes.data.data || []);
           }
         } catch (err) {
-          console.log('No clinical records found');
           setClinicalRecords([]);
         }
         
@@ -191,85 +188,6 @@ const PatientDetail: React.FC = () => {
     }
   };
 
-  const getMockPatient = (): Patient => ({
-    id: 'patient-1',
-    fiscalCode: 'RSSMRA85M01H501Z',
-    firstName: 'Mario',
-    lastName: 'Rossi',
-    birthDate: '1985-08-01',
-    birthPlace: 'Roma',
-    gender: 'MALE',
-    address: 'Via Roma 123',
-    city: 'Ravenna',
-    province: 'RA',
-    postalCode: '48121',
-    phone: '0544123456',
-    mobile: '3331234567',
-    email: 'mario.rossi@email.it',
-    occupation: 'Impiegato',
-    generalPractitioner: 'Dott. Verdi',
-    prescribingDoctor: 'Dott. Bianchi',
-    notes: 'Paziente con problemi posturali cronici',
-    privacyConsent: true,
-    dataProcessingConsent: true,
-    marketingConsent: false,
-    createdAt: '2025-01-15T10:00:00Z',
-    updatedAt: '2025-08-10T15:30:00Z',
-  });
-
-  const getMockClinicalRecords = (): ClinicalRecord[] => [
-    {
-      id: 'record-1',
-      recordNumber: 'MR-2025-1001',
-      acceptanceDate: '2025-07-01T10:00:00Z',
-      diagnosis: 'Lombalgia acuta',
-      status: 'OPEN',
-      _count: { therapies: 3 },
-    },
-    {
-      id: 'record-2',
-      recordNumber: 'MR-2025-0850',
-      acceptanceDate: '2025-03-15T10:00:00Z',
-      diagnosis: 'Cervicalgia',
-      status: 'CLOSED',
-      closedAt: '2025-05-20T10:00:00Z',
-      _count: { therapies: 2 },
-    },
-  ];
-
-  const getMockTherapies = (): Therapy[] => [
-    {
-      id: 'therapy-1',
-      therapyType: { name: 'Laser YAG', category: 'INSTRUMENTAL' },
-      status: 'IN_PROGRESS',
-      prescribedSessions: 10,
-      completedSessions: 6,
-      startDate: '2025-07-05T10:00:00Z',
-    },
-    {
-      id: 'therapy-2',
-      therapyType: { name: 'Tecar', category: 'INSTRUMENTAL' },
-      status: 'SCHEDULED',
-      prescribedSessions: 8,
-      completedSessions: 0,
-      startDate: '2025-08-12T10:00:00Z',
-    },
-  ];
-
-  const getMockVitalSigns = (): VitalSign[] => [
-    {
-      id: 'vital-1',
-      measurementDate: '2025-08-10T09:00:00Z',
-      temperature: 36.5,
-      heartRate: 72,
-      bloodPressureSys: 120,
-      bloodPressureDia: 80,
-      oxygenSaturation: 98,
-      weight: 75,
-      height: 175,
-      bmi: 24.5,
-    },
-  ];
 
   const generateTimeline = (records: ClinicalRecord[], therapies: Therapy[], vitals: VitalSign[]) => {
     const events: TimelineEvent[] = [];
