@@ -43,7 +43,7 @@ const updateSessionSchema = z.object({
 });
 
 export class TherapyController {
-  // GET /api/therapies - Lista tutte le terapie con ricerca substring esatta
+  // GET /api/therapies - Lista tutte le terapie
   static async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { 
@@ -92,8 +92,7 @@ export class TherapyController {
               id: true,
               status: true,
               sessionDate: true,
-            },
-            orderBy: { sessionNumber: 'asc' }
+            }
           },
           _count: {
             select: { sessions: true }

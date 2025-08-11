@@ -35,31 +35,50 @@ export class PatientController {
       const { page = 1, limit = 10, search = '' } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
 
-      const searchStr = String(search).trim();
+      const searchStr = String(search).trim().toLowerCase();
       
-      // Usa la query Prisma standard con contains che cerca la substring esatta
-      const where = searchStr
-        ? {
-            OR: [
-              // Cerca la substring esatta nel nome
-              { firstName: { contains: searchStr, mode: 'insensitive' as const } },
-              // Cerca la substring esatta nel cognome
-              { lastName: { contains: searchStr, mode: 'insensitive' as const } },
-              // Cerca la substring esatta nel codice fiscale
-              { fiscalCode: { contains: searchStr, mode: 'insensitive' as const } },
-            ],
-          }
-        : {};
-
-      const [patients, total] = await Promise.all([
-        prisma.patient.findMany({
-          where,
-          skip,
-          take: Number(limit),
+      let patients;
+      let total;
+      
+      if (searchStr) {
+        // Prima ottieni tutti i pazienti per fare un filtro più accurato
+        const allPatients = await prisma.patient.findMany({
           orderBy: { createdAt: 'desc' },
-        }),
-        prisma.patient.count({ where }),
-      ]);
+        });
+        
+        // Filtra i pazienti che contengono ESATTAMENTE la substring cercata
+        const filtered = allPatients.filter(patient => {
+          // Crea stringhe combinate per la ricerca (tutto minuscolo per case-insensitive)
+          const firstName = patient.firstName.toLowerCase();
+          const lastName = patient.lastName.toLowerCase();
+          const fullName = `${firstName} ${lastName}`;
+          const reverseName = `${lastName} ${firstName}`;
+          const fiscalCode = patient.fiscalCode.toLowerCase();
+          
+          // Controlla se la stringa di ricerca è contenuta ESATTAMENTE in:
+          return (
+            firstName.includes(searchStr) ||           // substring esatta nel nome
+            lastName.includes(searchStr) ||            // substring esatta nel cognome
+            fullName.includes(searchStr) ||            // substring esatta in "nome cognome"
+            reverseName.includes(searchStr) ||         // substring esatta in "cognome nome"
+            fiscalCode.includes(searchStr)             // substring esatta nel codice fiscale
+          );
+        });
+        
+        // Applica paginazione
+        patients = filtered.slice(skip, skip + Number(limit));
+        total = filtered.length;
+      } else {
+        // Se non c'è ricerca, usa la query normale con paginazione
+        [patients, total] = await Promise.all([
+          prisma.patient.findMany({
+            skip,
+            take: Number(limit),
+            orderBy: { createdAt: 'desc' },
+          }),
+          prisma.patient.count(),
+        ]);
+      }
 
       ResponseFormatter.successWithPagination(
         res,

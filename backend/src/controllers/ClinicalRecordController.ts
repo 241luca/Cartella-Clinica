@@ -32,70 +32,91 @@ export class ClinicalRecordController {
       } = req.query;
       
       const skip = (Number(page) - 1) * Number(limit);
+      const searchStr = String(search).trim().toLowerCase();
 
-      const where: any = {};
+      let records;
+      let total;
 
-      // Filtro per stato
-      if (status === 'active' || status === 'open') {
-        where.isActive = true;
-      } else if (status === 'closed') {
-        where.isActive = false;
-      }
-
-      // Ricerca
-      if (search) {
-        where.OR = [
-          { recordNumber: { contains: String(search), mode: 'insensitive' } },
-          { diagnosis: { contains: String(search), mode: 'insensitive' } },
-          { 
-            patient: {
-              OR: [
-                { firstName: { contains: String(search), mode: 'insensitive' } },
-                { lastName: { contains: String(search), mode: 'insensitive' } },
-                { fiscalCode: { contains: String(search), mode: 'insensitive' } },
-              ]
+      // Prima ottieni tutti i record con i dati inclusi
+      const allRecords = await prisma.clinicalRecord.findMany({
+        include: {
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              fiscalCode: true,
             }
-          }
-        ];
-      }
-
-      const [records, total] = await Promise.all([
-        prisma.clinicalRecord.findMany({
-          where,
-          skip,
-          take: Number(limit),
-          include: {
-            patient: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                fiscalCode: true,
-              }
-            },
-            createdBy: {
-              select: {
-                firstName: true,
-                lastName: true,
-              }
-            },
-            therapies: {
-              select: {
-                id: true,
-                status: true,
-                therapyType: {
-                  select: {
-                    name: true,
-                    category: true,
-                  }
+          },
+          createdBy: {
+            select: {
+              firstName: true,
+              lastName: true,
+            }
+          },
+          therapies: {
+            select: {
+              id: true,
+              status: true,
+              therapyType: {
+                select: {
+                  name: true,
+                  category: true,
                 }
               }
             }
-          },
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.clinicalRecord.count({ where }),
-      ]);
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      // Applica filtri
+      let filtered = allRecords;
+
+      // Filtro per stato
+      if (status === 'active' || status === 'open') {
+        filtered = filtered.filter(r => r.isActive === true);
+      } else if (status === 'closed') {
+        filtered = filtered.filter(r => r.isActive === false);
+      }
+
+      // Ricerca con substring esatta
+      if (searchStr) {
+        filtered = filtered.filter(record => {
+          // Cerca nel numero cartella
+          const recordNumber = record.recordNumber.toLowerCase();
+          if (recordNumber.includes(searchStr)) return true;
+          
+          // Cerca nella diagnosi
+          const diagnosis = record.diagnosis.toLowerCase();
+          if (diagnosis.includes(searchStr)) return true;
+          
+          // Cerca nei dati del paziente
+          if (record.patient) {
+            const firstName = record.patient.firstName.toLowerCase();
+            const lastName = record.patient.lastName.toLowerCase();
+            const fullName = `${firstName} ${lastName}`;
+            const reverseName = `${lastName} ${firstName}`;
+            const fiscalCode = record.patient.fiscalCode.toLowerCase();
+            
+            if (
+              firstName.includes(searchStr) ||
+              lastName.includes(searchStr) ||
+              fullName.includes(searchStr) ||
+              reverseName.includes(searchStr) ||
+              fiscalCode.includes(searchStr)
+            ) {
+              return true;
+            }
+          }
+          
+          return false;
+        });
+      }
+
+      // Applica paginazione
+      records = filtered.slice(skip, skip + Number(limit));
+      total = filtered.length;
 
       ResponseFormatter.successWithPagination(
         res,
