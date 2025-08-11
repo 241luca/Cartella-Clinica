@@ -60,7 +60,7 @@ cd frontend && npm run dev
 
 **CREDENZIALI:**
 * Admin: admin@medicinaravenna.it / admin123
-* GitHub: user 241luca, password 241-Mambo, token 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
+* GitHub: user 241luca, autenticazione SSH configurata
 
 **IMPORTANTE:**
 * Il frontend usa la porta 5183, NON 5173

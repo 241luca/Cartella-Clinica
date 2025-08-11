@@ -136,7 +136,7 @@ Il MainLayout non era utilizzato nel routing dell'applicazione.
 **GitHub:**
 - Repository: https://github.com/241luca/cartella-clinica
 - Username: 241luca
-- Token: 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
+- Autenticazione: SSH configurato
 
 ---
 

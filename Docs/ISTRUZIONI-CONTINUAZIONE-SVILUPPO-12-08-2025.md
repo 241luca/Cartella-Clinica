@@ -16,7 +16,7 @@
 ### Repository GitHub
 - URL: https://github.com/241luca/cartella-clinica
 - User: 241luca
-- Token: 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
+- Autenticazione: SSH configurato (non serve token)
 
 ### Credenziali Accesso Sistema
 - Admin: admin@medicinaravenna.it / admin123

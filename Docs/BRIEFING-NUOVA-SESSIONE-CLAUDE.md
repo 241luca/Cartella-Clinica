@@ -120,7 +120,7 @@ therapy = {
 
 ## 📝 CREDENZIALI
 - **Admin**: admin@medicinaravenna.it / admin123
-- **GitHub**: User: 241luca, PWD: 241-Mambo, Token: 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
+- **GitHub**: Configurato con SSH (non serve token)
 
 ## 🐛 BUG NOTI
 1. Possibile mancanza di sessioni nel database
