@@ -1,10 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { faker } from '@faker-js/faker/locale/it';
 
 const prisma = new PrismaClient();
 
 async function fixClinicalRecords() {
-  console.log('\n🔧 Correzione Cartelle Cliniche\n');
+  console.log('\n🔧 Creazione Cartelle Cliniche\n');
   console.log('='.repeat(50));
   
   try {
@@ -83,23 +82,30 @@ async function fixClinicalRecords() {
         const patient = patients[i];
         const diagnosisIndex = i % diagnosi.length;
         
+        // Genera date casuali
+        const createdDate = new Date();
+        createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 60)); // Ultimi 60 giorni
+        
+        const acceptanceDate = new Date(createdDate);
+        acceptanceDate.setDate(acceptanceDate.getDate() + 1);
+        
         const record = await prisma.clinicalRecord.create({
           data: {
             patientId: patient.id,
             recordNumber: `CR-2024-${String(i + 1).padStart(4, '0')}`,
-            acceptanceDate: faker.date.recent({ days: 30 }),
+            acceptanceDate: acceptanceDate,
             diagnosis: diagnosi[diagnosisIndex],
-            diagnosticDetails: `Paziente presenta ${sintomatologie[diagnosisIndex]}`,
+            diagnosticDetails: `Paziente presenta ${sintomatologie[diagnosisIndex]}. Esame obiettivo evidenzia limitazione funzionale e dolore alla palpazione.`,
             symptomatology: sintomatologie[diagnosisIndex],
-            objectiveExamination: 'Esame obiettivo: ' + faker.lorem.sentence(),
+            objectiveExamination: 'Esame obiettivo: Paziente in buone condizioni generali. Deambulazione alterata. Dolore alla palpazione e limitazione del ROM.',
             instrumentalExams: i % 3 === 0 ? 'RX: negativo per fratture. RMN: evidenzia alterazioni degenerative' : undefined,
-            interventionDate: i % 2 === 0 ? faker.date.recent({ days: 10 }) : undefined,
+            interventionDate: i % 2 === 0 ? new Date() : undefined,
             interventionDoctor: i % 2 === 0 ? 'Dott. Mario Bianchi' : undefined,
             isActive: i > 2, // Le prime 3 sono chiuse
-            closedAt: i <= 2 ? faker.date.recent({ days: 5 }) : undefined,
+            closedAt: i <= 2 ? new Date() : undefined,
             createdById: doctor.id,
-            createdAt: faker.date.recent({ days: 60 }),
-            updatedAt: faker.date.recent({ days: 1 })
+            createdAt: createdDate,
+            updatedAt: new Date()
           }
         });
         
