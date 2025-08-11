@@ -181,7 +181,9 @@ const TherapyDetail: React.FC = () => {
     );
   }
 
-  const progressPercentage = therapy ? (therapy.completedSessions / therapy.prescribedSessions) * 100 : 0;
+  const progressPercentage = therapy && therapy.prescribedSessions > 0 
+    ? ((therapy.completedSessions || 0) / therapy.prescribedSessions) * 100 
+    : 0;
   const completedSessions = sessions && Array.isArray(sessions) ? sessions.filter(s => s.completed) : [];
   const nextSession = sessions && Array.isArray(sessions) ? sessions.find(s => !s.completed) : null;
 
@@ -341,7 +343,7 @@ const TherapyDetail: React.FC = () => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-600">Completamento</p>
-                      <p className="text-lg font-bold text-gray-900">{Math.round(progressPercentage)}%</p>
+                      <p className="text-lg font-bold text-gray-900">{isNaN(progressPercentage) ? 0 : Math.round(progressPercentage)}%</p>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-3">
                       <div
@@ -353,12 +355,12 @@ const TherapyDetail: React.FC = () => {
                   
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-2xl font-bold text-gray-900">{therapy.completedSessions}</p>
+                      <p className="text-2xl font-bold text-gray-900">{therapy.completedSessions || 0}</p>
                       <p className="text-xs text-gray-600">Completate</p>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-2xl font-bold text-gray-900">
-                        {therapy.prescribedSessions - therapy.completedSessions}
+                        {(therapy.prescribedSessions || 0) - (therapy.completedSessions || 0)}
                       </p>
                       <p className="text-xs text-gray-600">Rimanenti</p>
                     </div>
@@ -395,7 +397,7 @@ const TherapyDetail: React.FC = () => {
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
-                      Sedute ({therapy.completedSessions}/{therapy.prescribedSessions})
+                      Sedute ({therapy.completedSessions || 0}/{therapy.prescribedSessions || 0})
                     </button>
                     <button
                       onClick={() => setActiveTab('progress')}
@@ -554,7 +556,7 @@ const TherapyDetail: React.FC = () => {
                         <div className="grid grid-cols-3 gap-4">
                           <div className="bg-green-50 rounded-lg p-4 text-center">
                             <p className="text-2xl font-bold text-green-700">
-                              {completedSessions.length > 0 
+                              {completedSessions.length > 0 && completedSessions[0].vasScoreBefore
                                 ? Math.round(((completedSessions[0].vasScoreBefore - completedSessions[completedSessions.length - 1].vasScoreAfter) / completedSessions[0].vasScoreBefore) * 100)
                                 : 0}%
                             </p>
@@ -566,7 +568,7 @@ const TherapyDetail: React.FC = () => {
                           </div>
                           <div className="bg-purple-50 rounded-lg p-4 text-center">
                             <p className="text-2xl font-bold text-purple-700">
-                              {completedSessions.reduce((sum, s) => sum + s.duration, 0)}
+                              {completedSessions.reduce((sum, s) => sum + (s.duration || 0), 0)}
                             </p>
                             <p className="text-sm text-purple-600 mt-1">Minuti totali</p>
                           </div>
