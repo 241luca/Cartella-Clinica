@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import GlobalSearchBar from '../components/common/GlobalSearchBar';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
@@ -74,7 +73,7 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 px-8 py-6">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-500 mt-1">
@@ -104,11 +103,6 @@ const Dashboard: React.FC = () => {
                 Calendario
               </button>
             </div>
-          </div>
-          
-          {/* Barra di ricerca globale */}
-          <div className="mt-4">
-            <GlobalSearchBar />
           </div>
         </div>
 

@@ -36,6 +36,19 @@ export const GlobalSearchBar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Aggiungi shortcut Cmd+K o Ctrl+K
+  useEffect(() => {
+    const handleShortcut = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleShortcut);
+    return () => document.removeEventListener('keydown', handleShortcut);
+  }, []);
+
   // Cerca mentre l'utente digita
   useEffect(() => {
     if (searchQuery.length >= 2) {
@@ -243,12 +256,12 @@ export const GlobalSearchBar: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Cerca pazienti, cartelle cliniche, terapie..."
-          className="w-full px-4 py-3 pl-12 pr-10 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+          className="w-full px-4 py-2 pl-10 pr-10 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
         />
-        <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
         
         {/* Shortcut hint */}
-        <div className="absolute right-4 top-3.5 flex items-center space-x-1 text-gray-400">
+        <div className="absolute right-3 top-2.5 flex items-center space-x-1 text-gray-400">
           {isSearching ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

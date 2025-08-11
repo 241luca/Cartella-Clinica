@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import GlobalSearchBar from '../common/GlobalSearchBar';
 import {
   LayoutDashboard,
   Users,
@@ -122,22 +123,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <div className="flex justify-between items-center py-4">
               {/* Search bar */}
               <div className="flex-1 flex">
-                <div className="w-full max-w-lg lg:max-w-xs">
-                  <label htmlFor="search" className="sr-only">
-                    Cerca
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="search"
-                      name="search"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Cerca pazienti, cartelle..."
-                      type="search"
-                    />
-                  </div>
+                <div className="w-full max-w-2xl">
+                  <GlobalSearchBar />
                 </div>
               </div>
 
