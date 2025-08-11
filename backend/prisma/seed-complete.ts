@@ -72,7 +72,7 @@ function generateCodiceFiscale(nome: string, cognome: string, dataNascita: Date,
   const consonantiNome = nome.replace(/[aeiou]/gi, '').toUpperCase().slice(0, 3).padEnd(3, 'X');
   const anno = dataNascita.getFullYear().toString().slice(-2);
   const mese = 'ABCDEHLMPRST'[dataNascita.getMonth()];
-  const giorno = (sesso === 'F' ? 40 : 0) + dataNascita.getDate();
+  const giorno = (sesso === 'FEMALE' ? 40 : 0) + dataNascita.getDate();
   const comune = 'H199'; // Codice Ravenna
   const controllo = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
   
@@ -115,99 +115,91 @@ async function main() {
       prisma.user.create({
         data: {
           email: 'admin@medicinaravenna.it',
+          username: 'admin',
           password: await bcrypt.hash('admin123', 10),
           firstName: 'Admin',
           lastName: 'Sistema',
           role: 'ADMIN',
-          specialization: 'Amministrazione',
-          licenseNumber: 'ADMIN001',
-          phoneNumber: '+390544456845',
+          phone: '+390544456845',
         },
       }),
       // Medici
       prisma.user.create({
         data: {
           email: 'dott.rossi@medicinaravenna.it',
+          username: 'dott.rossi',
           password: hashedPassword,
           firstName: 'Mario',
           lastName: 'Rossi',
           role: 'DOCTOR',
-          specialization: 'Medicina Fisica e Riabilitativa',
-          licenseNumber: 'RA12345',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       prisma.user.create({
         data: {
           email: 'dott.bianchi@medicinaravenna.it',
+          username: 'dott.bianchi',
           password: hashedPassword,
           firstName: 'Laura',
           lastName: 'Bianchi',
           role: 'DOCTOR',
-          specialization: 'Ortopedia',
-          licenseNumber: 'RA23456',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       prisma.user.create({
         data: {
           email: 'dott.verdi@medicinaravenna.it',
+          username: 'dott.verdi',
           password: hashedPassword,
           firstName: 'Giuseppe',
           lastName: 'Verdi',
           role: 'DOCTOR',
-          specialization: 'Neurologia',
-          licenseNumber: 'RA34567',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       // Fisioterapisti
       prisma.user.create({
         data: {
           email: 'ft.ferrari@medicinaravenna.it',
+          username: 'ft.ferrari',
           password: hashedPassword,
           firstName: 'Anna',
           lastName: 'Ferrari',
           role: 'THERAPIST',
-          specialization: 'Fisioterapia',
-          licenseNumber: 'FT001',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       prisma.user.create({
         data: {
           email: 'ft.romano@medicinaravenna.it',
+          username: 'ft.romano',
           password: hashedPassword,
           firstName: 'Marco',
           lastName: 'Romano',
           role: 'THERAPIST',
-          specialization: 'Fisioterapia Sportiva',
-          licenseNumber: 'FT002',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       prisma.user.create({
         data: {
           email: 'ft.marino@medicinaravenna.it',
+          username: 'ft.marino',
           password: hashedPassword,
           firstName: 'Giulia',
           lastName: 'Marino',
           role: 'THERAPIST',
-          specialization: 'Fisioterapia Neurologica',
-          licenseNumber: 'FT003',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
       prisma.user.create({
         data: {
           email: 'ft.gallo@medicinaravenna.it',
+          username: 'ft.gallo',
           password: hashedPassword,
           firstName: 'Roberto',
           lastName: 'Gallo',
           role: 'THERAPIST',
-          specialization: 'Osteopatia',
-          licenseNumber: 'FT004',
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
         },
       }),
     ]);
@@ -397,7 +389,7 @@ async function main() {
     for (let i = 0; i < 50; i++) {
       const nome = nomi[Math.floor(Math.random() * nomi.length)];
       const cognome = cognomi[Math.floor(Math.random() * cognomi.length)];
-      const sesso = i % 2 === 0 ? 'M' : 'F';
+      const sesso = i % 2 === 0 ? 'MALE' : 'FEMALE';
       const dataNascita = randomDate(new Date(1940, 0, 1), new Date(2005, 0, 1));
       const città = citta[Math.floor(Math.random() * citta.length)];
       
@@ -411,13 +403,9 @@ async function main() {
           gender: sesso,
           address: `Via ${cognomi[Math.floor(Math.random() * cognomi.length)]}, ${Math.floor(Math.random() * 100) + 1}`,
           city: città,
-          province: città === 'Ravenna' || città === 'Faenza' || città === 'Lugo' ? 'RA' : 
-                    città === 'Forlì' || città === 'Cesena' ? 'FC' : 'RN',
           postalCode: `48${Math.floor(Math.random() * 100).toString().padStart(3, '0')}`,
-          phoneNumber: generatePhoneNumber(),
+          phone: generatePhoneNumber(),
           email: `${nome.toLowerCase()}.${cognome.toLowerCase()}${i}@email.it`,
-          occupation: ['Impiegato', 'Operaio', 'Insegnante', 'Pensionato', 'Libero professionista', 'Studente', 'Casalinga', 'Commerciante'][Math.floor(Math.random() * 8)],
-          notes: Math.random() > 0.7 ? noteClinice[Math.floor(Math.random() * noteClinice.length)] : null,
         },
       });
       patients.push(patient);
@@ -438,14 +426,13 @@ async function main() {
       const record = await prisma.clinicalRecord.create({
         data: {
           patientId: patient.id,
-          doctorId: medico.id,
+          createdById: medico.id,
           recordNumber: `2024-${(i + 1).toString().padStart(4, '0')}`,
-          openedAt: dataApertura,
+          acceptanceDate: dataApertura,
           diagnosis: diagnosi[Math.floor(Math.random() * diagnosi.length)],
-          anamnesis: `Paziente di ${new Date().getFullYear() - patient.birthDate.getFullYear()} anni. ${noteClinice[Math.floor(Math.random() * noteClinice.length)]}`,
+          symptomatology: `Paziente di ${new Date().getFullYear() - patient.birthDate.getFullYear()} anni. ${noteClinice[Math.floor(Math.random() * noteClinice.length)]}`,
           objectiveExamination: 'Esame obiettivo: ' + ['Dolore alla palpazione', 'Limitazione funzionale', 'Edema presente', 'Contrattura muscolare', 'Ipotrofia muscolare'][Math.floor(Math.random() * 5)],
-          treatmentPlan: 'Piano terapeutico: ' + ['Riduzione dolore', 'Recupero mobilità', 'Rinforzo muscolare', 'Rieducazione funzionale', 'Prevenzione recidive'][Math.floor(Math.random() * 5)],
-          notes: Math.random() > 0.5 ? noteClinice[Math.floor(Math.random() * noteClinice.length)] : null,
+          diagnosticDetails: 'Piano terapeutico: ' + ['Riduzione dolore', 'Recupero mobilità', 'Rinforzo muscolare', 'Rieducazione funzionale', 'Prevenzione recidive'][Math.floor(Math.random() * 5)],
           closedAt: Math.random() > 0.7 ? randomDate(dataApertura, new Date()) : null,
         },
       });
@@ -457,12 +444,11 @@ async function main() {
     // 5. Creazione Terapie (45 terapie)
     console.log('💉 Creazione terapie...');
     const therapies = [];
-    const terapisti = users.filter(u => u.role === 'THERAPIST');
     
     for (let i = 0; i < 45; i++) {
       const record = clinicalRecords[Math.floor(Math.random() * clinicalRecords.length)];
       const therapyType = therapyTypes[Math.floor(Math.random() * therapyTypes.length)];
-      const dataInizio = randomDate(new Date(record.openedAt), new Date());
+      const dataInizio = randomDate(new Date(record.acceptanceDate), new Date());
       
       const therapy = await prisma.therapy.create({
         data: {
@@ -473,7 +459,7 @@ async function main() {
           frequency: ['Quotidiana', '3 volte/settimana', '2 volte/settimana', 'Settimanale'][Math.floor(Math.random() * 4)],
           startDate: dataInizio,
           endDate: Math.random() > 0.5 ? randomDate(dataInizio, new Date()) : null,
-          status: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'SUSPENDED'][Math.floor(Math.random() * 4)],
+          status: (['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const)[Math.floor(Math.random() * 4)],
           district: ['Cervicale', 'Dorsale', 'Lombare', 'Spalla dx', 'Spalla sx', 'Ginocchio dx', 'Ginocchio sx', 'Caviglia dx', 'Caviglia sx'][Math.floor(Math.random() * 9)],
           notes: Math.random() > 0.6 ? noteClinice[Math.floor(Math.random() * noteClinice.length)] : null,
           parameters: {
@@ -491,6 +477,7 @@ async function main() {
     // 6. Creazione Sedute Terapeutiche (50 sedute)
     console.log('📅 Creazione sedute terapeutiche...');
     const sessions = [];
+    const terapisti = users.filter(u => u.role === 'THERAPIST');
     
     for (let i = 0; i < 50; i++) {
       const therapy = therapies[Math.floor(Math.random() * therapies.length)];
@@ -504,7 +491,7 @@ async function main() {
           sessionNumber: Math.floor(Math.random() * 10) + 1,
           sessionDate: dataSessione,
           duration: therapyTypes.find(t => t.id === therapy.therapyTypeId)?.defaultDuration || 30,
-          status: ['SCHEDULED', 'COMPLETED', 'MISSED', 'CANCELLED'][Math.floor(Math.random() * 4)],
+          status: (['SCHEDULED', 'COMPLETED', 'MISSED', 'CANCELLED'] as const)[Math.floor(Math.random() * 4)],
           vasScoreBefore: Math.floor(Math.random() * 10),
           vasScoreAfter: Math.floor(Math.random() * 8),
           notes: Math.random() > 0.5 ? noteClinice[Math.floor(Math.random() * noteClinice.length)] : null,
@@ -526,18 +513,20 @@ async function main() {
     const documents = [];
     
     for (let i = 0; i < 30; i++) {
-      const record = clinicalRecords[Math.floor(Math.random() * clinicalRecords.length)];
-      const tipoDocumento = ['Referto RX', 'Referto RMN', 'Referto ECO', 'Referto EMG', 'Prescrizione medica', 'Relazione specialistica', 'Esami del sangue'][Math.floor(Math.random() * 7)];
+      const patient = patients[Math.floor(Math.random() * patients.length)];
+      const tipoDocumento = (['REPORT', 'XRAY', 'MRI', 'ULTRASOUND', 'LAB_RESULTS', 'PRESCRIPTION', 'CONSENT_FORM'] as const)[Math.floor(Math.random() * 7)];
+      const nomeFile = `documento_${tipoDocumento.toLowerCase()}_${i + 1}.pdf`;
       
       const document = await prisma.document.create({
         data: {
-          clinicalRecordId: record.id,
-          fileName: `${tipoDocumento.replace(' ', '_')}_${i + 1}.pdf`,
-          fileType: 'application/pdf',
+          patientId: patient.id,
+          documentType: tipoDocumento,
+          fileName: nomeFile,
+          filePath: `/uploads/documents/${patient.id}/${nomeFile}`,
+          mimeType: 'application/pdf',
           fileSize: Math.floor(Math.random() * 5000000) + 100000, // 100KB - 5MB
-          fileUrl: `/uploads/documents/${record.id}/${tipoDocumento.replace(' ', '_')}_${i + 1}.pdf`,
-          description: tipoDocumento,
-          uploadedBy: users[Math.floor(Math.random() * users.length)].id,
+          description: `Documento ${tipoDocumento}`,
+          uploadedById: users[Math.floor(Math.random() * users.length)].id,
         },
       });
       documents.push(document);

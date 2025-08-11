@@ -54,9 +54,12 @@ const ClinicalRecordList: React.FC = () => {
         status: statusFilter,
       });
       
-      setRecords(response.records || []);
-      setTotalPages(response.totalPages || 1);
-      setTotalRecords(response.total || 0);
+      // Il backend restituisce { success, data, pagination }
+      if (response.success) {
+        setRecords(response.data || []);
+        setTotalPages(response.pagination?.pages || 1);
+        setTotalRecords(response.pagination?.total || 0);
+      }
     } catch (error) {
       console.error('Errore caricamento cartelle:', error);
       // Mock data per sviluppo

@@ -76,9 +76,9 @@ const PatientList: React.FC = () => {
       const response = await api.get(`/patients?${params}`);
       
       if (response.data.success) {
-        setPatients(response.data.data.patients || []);
-        setTotalPages(response.data.data.totalPages || 1);
-        setTotalPatients(response.data.data.total || 0);
+        setPatients(response.data.data || []);
+        setTotalPages(response.data.pagination?.pages || 1);
+        setTotalPatients(response.data.pagination?.total || 0);
       }
     } catch (error) {
       console.error('Errore caricamento pazienti:', error);
