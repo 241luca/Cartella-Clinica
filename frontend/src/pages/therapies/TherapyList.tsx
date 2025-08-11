@@ -50,6 +50,7 @@ interface TherapyWithDetails {
   startDate: string;
   endDate?: string;
   notes?: string;
+  sessions?: any[]; // Array delle sessioni
 }
 
 const TherapyList: React.FC = () => {
@@ -85,16 +86,10 @@ const TherapyList: React.FC = () => {
         status: apiStatus,
       });
       
-      console.log('Therapies API Response:', response);
       
       // Il servizio restituisce response.data
       if (response.data) {
         if (response.data.success) {
-          console.log('Therapies data:', response.data.data);
-          // Verifica struttura delle terapie
-          if (response.data.data && response.data.data.length > 0) {
-            console.log('Prima terapia:', response.data.data[0]);
-          }
           setTherapies(response.data.data || []);
           if (response.data.pagination) {
             setTotalPages(response.data.pagination.pages || 1);
@@ -179,7 +174,16 @@ const TherapyList: React.FC = () => {
 
   const activeTherapies = therapies.filter(t => t.status === 'IN_PROGRESS' || t.status === 'SCHEDULED').length;
   const completedTherapies = therapies.filter(t => t.status === 'COMPLETED').length;
-  const totalSessions = therapies.reduce((sum, t) => sum + t.prescribedSessions, 0);
+  
+  // Calcola il totale delle sedute effettive dalle sessioni presenti
+  const totalSessions = therapies.reduce((sum, t) => {
+    // Se ci sono sessioni, conta quelle, altrimenti usa prescribedSessions
+    if (t.sessions && Array.isArray(t.sessions)) {
+      return sum + t.sessions.length;
+    }
+    return sum + t.prescribedSessions;
+  }, 0);
+  
   const completedSessions = therapies.reduce((sum, t) => sum + t.completedSessions, 0);
   const completionRate = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
 
