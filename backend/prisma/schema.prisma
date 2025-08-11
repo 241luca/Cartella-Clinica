@@ -1,0 +1,559 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================== ENUMS ==================
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+  THERAPIST
+  RECEPTIONIST
+  NURSE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum TherapyStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  MISSED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  MISSED
+  RESCHEDULED
+}
+
+enum DocumentType {
+  PRESCRIPTION
+  REPORT
+  XRAY
+  MRI
+  CT_SCAN
+  ULTRASOUND
+  LAB_RESULTS
+  CONSENT_FORM
+  DISCHARGE_REPORT
+  OTHER
+}
+
+enum ConsentType {
+  PRIVACY
+  TREATMENT
+  DATA_PROCESSING
+  RESEARCH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  INSURANCE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+// ================== MODELS ==================
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  username          String          @unique
+  password          String
+  role              UserRole
+  firstName         String          @map("first_name")
+  lastName          String          @map("last_name")
+  phone             String?
+  isActive          Boolean         @default(true) @map("is_active")
+  lastLogin         DateTime?       @map("last_login")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  therapistSessions TherapySession[] @relation("TherapistSessions")
+  createdRecords    ClinicalRecord[] @relation("CreatedBy")
+  clinicalControls  ClinicalControl[]
+  auditLogs         AuditLog[]
+  appointments      Appointment[]    @relation("TherapistAppointments")
+  
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Patient {
+  id                  String           @id @default(uuid())
+  fiscalCode          String           @unique @map("fiscal_code")
+  firstName           String           @map("first_name")
+  lastName            String           @map("last_name")
+  birthDate           DateTime         @map("birth_date")
+  birthPlace          String           @map("birth_place")
+  gender              Gender
+  address             String
+  city                String
+  postalCode          String           @map("postal_code")
+  phone               String?
+  mobile              String?
+  email               String?
+  
+  // Medical info
+  generalPractitioner String?          @map("general_practitioner")
+  prescribingDoctor   String?          @map("prescribing_doctor")
+  
+  // Privacy
+  privacyConsent      Boolean          @default(false) @map("privacy_consent")
+  marketingConsent    Boolean          @default(false) @map("marketing_consent")
+  
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  deletedAt           DateTime?        @map("deleted_at")
+  
+  // Relations
+  clinicalRecords     ClinicalRecord[]
+  anamnesis           Anamnesis[]
+  vitalSigns          VitalSign[]
+  documents           Document[]
+  consents            Consent[]
+  invoices            Invoice[]
+  appointments        Appointment[]
+  
+  @@index([fiscalCode])
+  @@index([lastName, firstName])
+  @@map("patients")
+}
+
+model ClinicalRecord {
+  id                   String                @id @default(uuid())
+  patientId            String                @map("patient_id")
+  recordNumber         String                @unique @map("record_number")
+  acceptanceDate       DateTime              @map("acceptance_date")
+  diagnosis            String
+  diagnosticDetails    String?               @map("diagnostic_details")
+  symptomatology       String?
+  objectiveExamination String?               @map("objective_examination")
+  instrumentalExams    String?               @map("instrumental_exams")
+  interventionDate     DateTime?             @map("intervention_date")
+  interventionDoctor   String?               @map("intervention_doctor")
+  isActive             Boolean               @default(true) @map("is_active")
+  closedAt             DateTime?             @map("closed_at")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  createdById          String                @map("created_by_id")
+  
+  // Relations
+  patient              Patient               @relation(fields: [patientId], references: [id])
+  createdBy            User                  @relation("CreatedBy", fields: [createdById], references: [id])
+  therapies            Therapy[]
+  functionalEvaluations FunctionalEvaluation[]
+  clinicalControls     ClinicalControl[]
+  dischargeReport      DischargeReport?
+  
+  @@index([patientId])
+  @@index([recordNumber])
+  @@index([acceptanceDate])
+  @@map("clinical_records")
+}
+
+model TherapyType {
+  id                String      @id @default(uuid())
+  code              String      @unique
+  name              String
+  category          String
+  description       String?
+  defaultDuration   Int         @default(30) @map("default_duration") // in minutes
+  defaultSessions   Int         @default(10) @map("default_sessions")
+  requiresDoctor    Boolean     @default(false) @map("requires_doctor")
+  requiresEquipment Boolean     @default(false) @map("requires_equipment")
+  parametersSchema  Json?       @map("parameters_schema") // JSON schema for therapy-specific parameters
+  isActive          Boolean     @default(true) @map("is_active")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  
+  // Relations
+  therapies         Therapy[]
+  
+  @@index([code])
+  @@index([category])
+  @@map("therapy_types")
+}
+
+model Therapy {
+  id                String          @id @default(uuid())
+  clinicalRecordId  String          @map("clinical_record_id")
+  therapyTypeId     String          @map("therapy_type_id")
+  prescribedSessions Int            @map("prescribed_sessions")
+  completedSessions Int             @default(0) @map("completed_sessions")
+  startDate         DateTime        @map("start_date")
+  endDate           DateTime?       @map("end_date")
+  status            TherapyStatus   @default(SCHEDULED)
+  frequency         String?         // e.g., "2x/week", "daily"
+  district          String?         // body district
+  notes             String?
+  parameters        Json?           // therapy-specific parameters (W, Hz, dose, etc.)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  clinicalRecord    ClinicalRecord  @relation(fields: [clinicalRecordId], references: [id])
+  therapyType       TherapyType     @relation(fields: [therapyTypeId], references: [id])
+  sessions          TherapySession[]
+  
+  @@index([clinicalRecordId])
+  @@index([therapyTypeId])
+  @@index([status])
+  @@map("therapies")
+}
+
+model TherapySession {
+  id                String          @id @default(uuid())
+  therapyId         String          @map("therapy_id")
+  therapistId       String          @map("therapist_id")
+  sessionNumber     Int             @map("session_number")
+  sessionDate       DateTime        @map("session_date")
+  duration          Int             // in minutes
+  status            SessionStatus   @default(SCHEDULED)
+  
+  // VAS Scale
+  vasScoreBefore    Int?            @map("vas_score_before") // 0-10
+  vasScoreAfter     Int?            @map("vas_score_after")  // 0-10
+  
+  // Session details
+  variations        String?         // variations during therapy
+  notes             String?
+  parameters        Json?           // actual parameters used
+  
+  // Signatures
+  therapistSignature String?        @map("therapist_signature")
+  patientSignature  String?         @map("patient_signature")
+  signedAt          DateTime?       @map("signed_at")
+  
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  therapy           Therapy         @relation(fields: [therapyId], references: [id])
+  therapist         User            @relation("TherapistSessions", fields: [therapistId], references: [id])
+  
+  @@unique([therapyId, sessionNumber])
+  @@index([therapyId])
+  @@index([therapistId])
+  @@index([sessionDate])
+  @@map("therapy_sessions")
+}
+
+model FunctionalEvaluation {
+  id                String          @id @default(uuid())
+  clinicalRecordId  String          @map("clinical_record_id")
+  evaluationDate    DateTime        @map("evaluation_date")
+  evaluationType    String          @map("evaluation_type") // INITIAL, CONTROL, FINAL
+  articulation      String?
+  district          String?
+  
+  // Measurements in degrees
+  flexionInitial    Float?          @map("flexion_initial")
+  flexionFinal      Float?          @map("flexion_final")
+  extensionInitial  Float?          @map("extension_initial")
+  extensionFinal    Float?          @map("extension_final")
+  abductionInitial  Float?          @map("abduction_initial")
+  abductionFinal    Float?          @map("abduction_final")
+  adductionInitial  Float?          @map("adduction_initial")
+  adductionFinal    Float?          @map("adduction_final")
+  rotationInitial   Float?          @map("rotation_initial")
+  rotationFinal     Float?          @map("rotation_final")
+  
+  // Scores
+  functionalScore   Int?            @map("functional_score") // 0-10
+  vasScore          Int?            @map("vas_score")        // 0-10
+  finalScore        Int?            @map("final_score")      // 0-20
+  result            String?         // NULLO, SCARSO, SUFFICIENTE, BUONO, OTTIMO
+  
+  notes             String?
+  evaluatorId       String?         @map("evaluator_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  clinicalRecord    ClinicalRecord  @relation(fields: [clinicalRecordId], references: [id])
+  
+  @@index([clinicalRecordId])
+  @@index([evaluationDate])
+  @@map("functional_evaluations")
+}
+
+model Anamnesis {
+  id                String          @id @default(uuid())
+  patientId         String          @map("patient_id")
+  recordDate        DateTime        @map("record_date")
+  
+  // Remote anamnesis
+  infectiousDiseases String?        @map("infectious_diseases")
+  previousSurgeries String?         @map("previous_surgeries")
+  boneFractures     String?         @map("bone_fractures")
+  currentPathologies String?        @map("current_pathologies")
+  
+  // Family anamnesis
+  geneticRisks      String?         @map("genetic_risks")
+  environmentalRisks String?        @map("environmental_risks")
+  familyPredispositions String?     @map("family_predispositions")
+  
+  // Lifestyle
+  lifestyle         String?
+  socialData        String?         @map("social_data")
+  previousTherapies String?         @map("previous_therapies")
+  
+  // Allergies and conditions
+  allergies         String?
+  infections        String?
+  traumas           String?
+  
+  notes             String?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  
+  @@index([patientId])
+  @@map("anamnesis")
+}
+
+model VitalSign {
+  id                String          @id @default(uuid())
+  patientId         String          @map("patient_id")
+  measurementDate   DateTime        @map("measurement_date")
+  
+  // Vital parameters
+  temperature       Float?          // Celsius
+  heartRate         Int?            @map("heart_rate") // bpm
+  respiratoryRate   Int?            @map("respiratory_rate") // breaths/min
+  bloodPressureSys  Int?            @map("blood_pressure_sys") // mmHg
+  bloodPressureDia  Int?            @map("blood_pressure_dia") // mmHg
+  oxygenSaturation  Float?          @map("oxygen_saturation") // percentage
+  
+  // Body measurements
+  weight            Float?          // kg
+  height            Float?          // cm
+  bmi               Float?          // calculated
+  
+  notes             String?
+  measuredById      String?         @map("measured_by_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  
+  @@index([patientId])
+  @@index([measurementDate])
+  @@map("vital_signs")
+}
+
+model ClinicalControl {
+  id                String          @id @default(uuid())
+  clinicalRecordId  String          @map("clinical_record_id")
+  controlDate       DateTime        @map("control_date")
+  doctorId          String          @map("doctor_id")
+  findings          String
+  recommendations   String?
+  nextControlDate   DateTime?       @map("next_control_date")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  clinicalRecord    ClinicalRecord  @relation(fields: [clinicalRecordId], references: [id])
+  doctor            User            @relation(fields: [doctorId], references: [id])
+  
+  @@index([clinicalRecordId])
+  @@index([controlDate])
+  @@map("clinical_controls")
+}
+
+model DischargeReport {
+  id                String          @id @default(uuid())
+  clinicalRecordId  String          @unique @map("clinical_record_id")
+  dischargeDate     DateTime        @map("discharge_date")
+  therapyCycles     String          @map("therapy_cycles")
+  startDate         DateTime        @map("start_date")
+  endDate           DateTime        @map("end_date")
+  diagnosis         String
+  clinicalResult    String          @map("clinical_result")
+  functionalResult  String          @map("functional_result")
+  recommendations   String?
+  nextControlDate   DateTime?       @map("next_control_date")
+  doctorName        String          @map("doctor_name")
+  doctorSignature   String?         @map("doctor_signature")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  clinicalRecord    ClinicalRecord  @relation(fields: [clinicalRecordId], references: [id])
+  
+  @@map("discharge_reports")
+}
+
+model Document {
+  id                String          @id @default(uuid())
+  patientId         String          @map("patient_id")
+  documentType      DocumentType    @map("document_type")
+  fileName          String          @map("file_name")
+  filePath          String          @map("file_path")
+  mimeType          String          @map("mime_type")
+  fileSize          Int             @map("file_size") // in bytes
+  description       String?
+  uploadedById      String?         @map("uploaded_by_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  
+  @@index([patientId])
+  @@index([documentType])
+  @@map("documents")
+}
+
+model Consent {
+  id                String          @id @default(uuid())
+  patientId         String          @map("patient_id")
+  consentType       ConsentType     @map("consent_type")
+  isGranted         Boolean         @map("is_granted")
+  grantedAt         DateTime?       @map("granted_at")
+  revokedAt         DateTime?       @map("revoked_at")
+  expiresAt         DateTime?       @map("expires_at")
+  signature         String?
+  ipAddress         String?         @map("ip_address")
+  userAgent         String?         @map("user_agent")
+  notes             String?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  
+  @@index([patientId])
+  @@index([consentType])
+  @@map("consents")
+}
+
+model Appointment {
+  id                String             @id @default(uuid())
+  patientId         String             @map("patient_id")
+  therapistId       String?            @map("therapist_id")
+  appointmentDate   DateTime           @map("appointment_date")
+  duration          Int                @default(30) // in minutes
+  status            AppointmentStatus  @default(SCHEDULED)
+  type              String             // THERAPY, CONSULTATION, CONTROL, etc.
+  notes             String?
+  reminderSent      Boolean            @default(false) @map("reminder_sent")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient            @relation(fields: [patientId], references: [id])
+  therapist         User?              @relation("TherapistAppointments", fields: [therapistId], references: [id])
+  
+  @@index([patientId])
+  @@index([therapistId])
+  @@index([appointmentDate])
+  @@index([status])
+  @@map("appointments")
+}
+
+model Invoice {
+  id                String          @id @default(uuid())
+  invoiceNumber     String          @unique @map("invoice_number")
+  patientId         String          @map("patient_id")
+  issueDate         DateTime        @map("issue_date")
+  dueDate           DateTime        @map("due_date")
+  totalAmount       Decimal         @db.Decimal(10, 2) @map("total_amount")
+  taxAmount         Decimal         @db.Decimal(10, 2) @map("tax_amount")
+  netAmount         Decimal         @db.Decimal(10, 2) @map("net_amount")
+  status            PaymentStatus   @default(PENDING)
+  paymentMethod     PaymentMethod?  @map("payment_method")
+  paidAt            DateTime?       @map("paid_at")
+  notes             String?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  items             InvoiceItem[]
+  
+  @@index([patientId])
+  @@index([invoiceNumber])
+  @@index([status])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id                String          @id @default(uuid())
+  invoiceId         String          @map("invoice_id")
+  description       String
+  quantity          Int
+  unitPrice         Decimal         @db.Decimal(10, 2) @map("unit_price")
+  totalPrice        Decimal         @db.Decimal(10, 2) @map("total_price")
+  taxRate           Decimal         @db.Decimal(5, 2) @map("tax_rate")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  invoice           Invoice         @relation(fields: [invoiceId], references: [id])
+  
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model AuditLog {
+  id                String          @id @default(uuid())
+  userId            String?         @map("user_id")
+  action            String
+  entityType        String          @map("entity_type")
+  entityId          String          @map("entity_id")
+  oldValues         Json?           @map("old_values")
+  newValues         Json?           @map("new_values")
+  ipAddress         String?         @map("ip_address")
+  userAgent         String?         @map("user_agent")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  
+  // Relations
+  user              User?           @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

@@ -1,0 +1,71 @@
+# 📋 MESSAGGIO DA COPIARE PER LA PROSSIMA SESSIONE CLAUDE
+
+## COPIA TUTTO QUESTO TESTO E INCOLLALO A CLAUDE:
+
+---
+
+Ciao! Devi completare il progetto di gestione cartella clinica per Medicina Ravenna.
+
+**INFORMAZIONI PROGETTO:**
+* Directory progetto: /Users/lucamambelli/Desktop/Cartella-Clinica
+* Directory documentazione: /Users/lucamambelli/Desktop/Cartella-Clinica/Docs
+* Repository GitHub: https://github.com/241luca/cartella-clinica
+* Progresso attuale: 75% completato
+
+**COSA È STATO FATTO:**
+* Backend completato al 90% (manca solo PDF)
+* TUTTI i 13 form delle terapie sono stati creati
+* Componente VASScale completato
+* PatientDetail page completata
+* Database PostgreSQL funzionante
+* API REST complete
+
+**COSA DEVI FARE SUBITO:**
+1. PRIMA DI TUTTO leggi il file /Users/lucamambelli/Desktop/Cartella-Clinica/Docs/ISTRUZIONI-FINALI-COMPLETAMENTO.md
+2. Creare il NewTherapyWizard per selezionare e usare i form
+3. Integrare i form con le API backend
+4. Creare il componente BodyMapper
+5. Implementare generazione PDF
+6. Testare tutto il sistema end-to-end
+7. Aggiornare SEMPRE la documentazione
+
+**I 13 FORM GIÀ CREATI (NON ricrearli):**
+Sono in /frontend/src/components/therapy-forms/
+- MagnetoterapiaForm.tsx
+- LaserYagForm.tsx
+- Laser810980Form.tsx
+- LaserScannerForm.tsx
+- TensForm.tsx
+- UltrasuoniForm.tsx
+- ElettrostimolazioneForm.tsx
+- MassoterapiaForm.tsx
+- TecarsinForm.tsx
+- LimfaterapyForm.tsx
+- MobilizzazioniForm.tsx
+- SITForm.tsx
+- TecalabForm.tsx
+
+**SETUP AMBIENTE:**
+```bash
+# Backend su porta 3100
+cd backend && npm run dev
+
+# Frontend su porta 5183 (NON 5173!)
+cd frontend && npm run dev
+```
+
+**CREDENZIALI:**
+* Admin: admin@medicinaravenna.it / admin123
+* GitHub: user 241luca, password 241-Mambo, token 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
+
+**IMPORTANTE:**
+* Il frontend usa la porta 5183, NON 5173
+* React è versione 18.3.1, NON aggiornare
+* Fai commit su GitHub OGNI ORA
+* Aggiorna SEMPRE la documentazione dopo ogni modifica
+* Crea un report dettagliato alla fine della sessione
+
+Io non ho esperienza di programmazione, quindi parla in modo semplice.
+Inizia leggendo le istruzioni dettagliate e poi procedi con l'integrazione dei form.
+
+---
