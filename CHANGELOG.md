@@ -1,190 +1,203 @@
-# 📝 CHANGELOG
+# CHANGELOG - Sistema Gestione Cartelle Cliniche
 
-Tutti i cambiamenti significativi del progetto sono documentati in questo file.
+Tutti i cambiamenti significativi di questo progetto sono documentati in questo file.
 
 Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/),
-e questo progetto aderisce a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+e questo progetto aderisce a [Semantic Versioning](https://semver.org/lang/it/).
 
-## [2.0.0] - 2025-08-11
+## [1.0.0] - 11 Agosto 2025
 
-### 🎨 Redesign Completo UI/UX
+### 🎉 Release Iniziale - Production Ready
 
-#### ✨ Aggiunte
-- **Nuovo Design System v2.0**
-  - Colori chiari e professionali (Indigo, Purple, Green, Amber)
-  - Componenti UI moderni e consistenti
-  - Icone Lucide React per tutto il sistema
-  - Typography scale ottimizzata
-  
-- **Dashboard Rinnovata**
-  - 4 Stats cards con trend indicators
-  - Grafici attività settimanale e mensile interattivi
-  - Widget ultimi pazienti con avatar colorati
-  - Sezione appuntamenti del giorno
-  - Notifiche e avvisi in sidebar
-
-- **Pagina Calendario** 
-  - Nuova pagina dedicata `/calendar`
-  - Vista settimana/mese/giorno
-  - Sidebar con riepilogo giornaliero
-  - Filtri per terapista e tipo terapia
-  - Export calendario
-
-- **Report & Analytics**
-  - Dashboard analytics completa
-  - KPI cards con metriche real-time
-  - Grafici fatturato (bar chart)
-  - Distribuzione terapie (pie chart)
-  - Top performers terapisti
-  - Export PDF/Excel
-
-#### 🔄 Modificate
-- **Pazienti**
-  - Tabella modernizzata con avatar e badges
-  - Search bar con icona integrata
-  - Pagination elegante
-  - Export buttons prominent
+#### ✨ Funzionalità Implementate
+- **Gestione Pazienti**
+  - CRUD completo con anagrafica italiana
+  - Ricerca e filtri avanzati
+  - Storico clinico del paziente
+  - Validazione codice fiscale
 
 - **Cartelle Cliniche**
-  - Da tabella a grid cards
-  - Progress tracking visuale
-  - Quick actions su ogni card
-  - Stati con badges colorati
-
-- **Terapie**
-  - Grid layout 4 colonne responsive
-  - Progress bars per completamento
-  - Status badges distintivi
-  - 5 stats cards in header
-
-- **Sidebar Navigation**
-  - Design più chiaro e pulito
-  - Hover effects migliorati
-  - Badge per notifiche
-  - User profile section
-
-#### 🐛 Corrette
-- Menu sidebar mancante in Cartelle Cliniche
-- Errore 404 endpoint `/api/therapies`
-- TypeScript errors per variabili non utilizzate
-- Metodo `getAll` mancante in therapyService
-
-#### 📚 Documentazione
-- README principale aggiornato
-- Setup guide completa
-- Design System documentation
-- API documentation dettagliata
-- User Manual per utenti finali
-- Report redesign completo
-
-#### 🏗️ Tecniche
-- Implementato `AppLayout` wrapper component
-- Lazy loading per tutti i componenti
-- Loading states con spinner custom
-- Mock data per development
-- Responsive breakpoints ottimizzati
-
-## [1.0.0] - 2025-08-10
-
-### 🚀 Release Iniziale
-
-#### ✨ Features
-- **Gestione Pazienti**
-  - CRUD completo anagrafica
-  - Ricerca e filtri
-  - Storia clinica
-
-- **Cartelle Cliniche**  
-  - Creazione e gestione
-  - Allegati documenti
-  - Stati aperta/chiusa
+  - Creazione e gestione cartelle
+  - Anamnesi completa
+  - Upload documenti
+  - Stati cartella (attiva/chiusa)
 
 - **Gestione Terapie**
-  - 13 tipologie disponibili
-  - Tracking sedute
-  - Valutazione VAS
+  - 15 tipi di terapia predefiniti
+  - Form creazione/modifica terapie
+  - Parametri specifici per tipo
+  - Tracking prescrizioni
 
-- **Autenticazione**
-  - JWT con refresh token
-  - Role-based access control
-  - Password recovery
+- **Sessioni Terapeutiche**
+  - Gestione sessioni singole
+  - VAS score pre/post trattamento
+  - Note cliniche per sessione
+  - Firma digitale terapista
+  - Numerazione sequenziale automatica
 
-#### 🛠️ Infrastruttura
-- Frontend: React + TypeScript + Vite
-- Backend: Node.js + Express + Prisma
-- Database: PostgreSQL
-- Styling: Tailwind CSS
+- **Dashboard Analytics**
+  - Statistiche real-time
+  - Grafici progressi terapie
+  - Alert e notifiche
+  - Vista calendario
 
-## [0.9.0] - 2025-08-05 (Beta)
+- **Sistema Autenticazione**
+  - Login con JWT
+  - Ruoli utente (Admin, Dottore, Fisioterapista)
+  - Refresh token
+  - Logout sicuro
 
-### 🧪 Beta Testing
+#### 🗄️ Database
+- PostgreSQL con Prisma ORM
+- 15+ tabelle relazionali
+- Seed con dati realistici:
+  - 100 pazienti
+  - 384 terapie
+  - 3.718 sessioni
+  - 70 anamnesi
+  - 150 segni vitali
 
-#### ✨ Features
-- Sistema base funzionante
-- CRUD operations
-- Basic authentication
-- Prima versione UI
+#### 🔒 Sicurezza
+- Password hash con bcrypt
+- Validazione input con Zod
+- Protezione SQL injection (Prisma)
+- CORS configurato
+- GitHub SSH authentication
+- Nessun token esposto nel codice
 
-#### 🐛 Known Issues
-- Performance da ottimizzare
-- UI da migliorare
-- Mancano features avanzate
+#### 🎨 UI/UX
+- Design moderno con Tailwind CSS
+- Fully responsive
+- Dark mode sidebar
+- Icone Lucide React
+- Animazioni fluide
+- Loading states
 
----
-
-## Roadmap Futura
-
-### [2.1.0] - Pianificato Q3 2025
-- [ ] Dark mode
-- [ ] Multi-language (IT/EN)
-- [ ] App mobile (iOS/Android)
-- [ ] Notifiche push
-- [ ] Video consultazioni
-
-### [2.2.0] - Pianificato Q4 2025
-- [ ] AI assistente diagnostico
-- [ ] Integrazione fatturazione elettronica
-- [ ] Firma digitale documenti
-- [ ] Backup automatico cloud
-- [ ] Dashboard personalizzabili
-
-### [3.0.0] - Pianificato 2026
-- [ ] Multi-clinica support
-- [ ] Telemedicina integrata
-- [ ] Machine learning per predizioni
-- [ ] Blockchain per documenti
-- [ ] API pubblica
-
----
-
-## Versioning
-
-Usiamo [Semantic Versioning](https://semver.org/):
-
-- **MAJOR** (X.0.0): Breaking changes, incompatibilità
-- **MINOR** (0.X.0): Nuove features, retrocompatibili
-- **PATCH** (0.0.X): Bug fixes, piccoli miglioramenti
-
-## Come Contribuire
-
-1. Fork il repository
-2. Crea feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add: AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Apri Pull Request
-
-## Convenzioni Commit
-
-Usiamo [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` Nuova feature
-- `fix:` Bug fix
-- `docs:` Solo documentazione
-- `style:` Formattazione, no logic changes
-- `refactor:` Refactoring codice
-- `test:` Aggiunta test
-- `chore:` Maintenance
+#### 📊 Performance
+- Tempo caricamento < 1 secondo
+- Lazy loading componenti
+- Paginazione server-side
+- Query ottimizzate
+- Build production ottimizzata
 
 ---
 
-*Per maggiori dettagli sui cambiamenti, vedi i [commit su GitHub](https://github.com/241luca/cartella-clinica/commits/main)*
+## [0.9.0] - 11 Agosto 2025 (Mattina)
+
+### Aggiunti
+- Form creazione/modifica terapie
+- Gestione sessione singola
+- VAS score tracking
+- Export dati
+
+### Corretti
+- Sessioni non visibili nel dettaglio
+- Mapping campi errati
+- Date formatting
+
+---
+
+## [0.8.0] - 10 Agosto 2025
+
+### Aggiunti
+- Seed database realistico
+- 384 terapie di esempio
+- 3718 sessioni sequenziali
+- Dati pazienti italiani
+
+### Rimossi
+- Tutti i dati mock
+- Dipendenze non utilizzate
+
+---
+
+## [0.7.0] - 10 Agosto 2025
+
+### Aggiunti
+- Dashboard completa
+- Grafici con Recharts
+- Calendario terapie
+- Sistema notifiche
+
+### Migliorati
+- Performance queries
+- Gestione errori
+- Validazione form
+
+---
+
+## [0.6.0] - 9 Agosto 2025
+
+### Aggiunti
+- Autenticazione JWT
+- Middleware protezione route
+- Gestione ruoli utente
+- Refresh token
+
+---
+
+## [0.5.0] - 9 Agosto 2025
+
+### Aggiunti
+- CRUD cartelle cliniche
+- Upload documenti
+- Anamnesi paziente
+- Segni vitali
+
+---
+
+## [0.4.0] - 8 Agosto 2025
+
+### Aggiunti
+- CRUD terapie base
+- Tipi di terapia
+- Parametri terapia
+- Stati terapia
+
+---
+
+## [0.3.0] - 8 Agosto 2025
+
+### Aggiunti
+- CRUD pazienti completo
+- Validazione dati
+- Ricerca e filtri
+- Paginazione
+
+---
+
+## [0.2.0] - 7 Agosto 2025
+
+### Aggiunti
+- Setup Prisma ORM
+- Schema database
+- Migrations iniziali
+- API routes base
+
+---
+
+## [0.1.0] - 7 Agosto 2025
+
+### Aggiunti
+- Setup iniziale progetto
+- Configurazione TypeScript
+- Setup React + Vite
+- Configurazione Tailwind CSS
+- Struttura cartelle
+
+---
+
+## Legenda
+
+- **Aggiunti** per nuove funzionalità
+- **Modificati** per modifiche a funzionalità esistenti
+- **Deprecati** per funzionalità che saranno rimosse
+- **Rimossi** per funzionalità rimosse
+- **Corretti** per bug fix
+- **Sicurezza** per vulnerabilità risolte
+
+---
+
+**Mantenuto da**: Luca Mambelli  
+**Cliente**: Medicina Ravenna SRL  
+**Repository**: https://github.com/241luca/cartella-clinica
