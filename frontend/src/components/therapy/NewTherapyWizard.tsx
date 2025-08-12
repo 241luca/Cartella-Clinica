@@ -244,15 +244,22 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       // Prepara i dati nel formato corretto per l'API
       const dataToSave = {
         clinicalRecordId: clinicalRecordId || selectedRecord?.id || formData.clinicalRecordId,
-        therapyTypeId: selectedTherapyType?.id || formData.therapyTypeId,
+        therapyTypeId: parseInt(selectedTherapyType?.id || formData.therapyTypeId), // Converti in numero
         prescribedSessions: parseInt(formData.prescribedSessions),
         startDate: formData.startDate,
-        frequency: formData.frequency,
-        district: formData.district || null,
-        notes: formData.notes || null,
+        frequency: formData.frequency.toUpperCase(), // Assicurati che sia maiuscolo
+        district: formData.district || undefined, // Usa undefined invece di null
+        notes: formData.notes || undefined,
         parameters: formData.parameters || {},
         status: 'ACTIVE' // Aggiungi status di default
       };
+
+      // Rimuovi campi undefined
+      Object.keys(dataToSave).forEach(key => {
+        if (dataToSave[key] === undefined) {
+          delete dataToSave[key];
+        }
+      });
 
       console.log('Data to save:', dataToSave);
       
@@ -260,8 +267,8 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       if (!dataToSave.clinicalRecordId) {
         throw new Error('Cartella clinica non selezionata');
       }
-      if (!dataToSave.therapyTypeId) {
-        throw new Error('Tipo di terapia non selezionato');
+      if (!dataToSave.therapyTypeId || isNaN(dataToSave.therapyTypeId)) {
+        throw new Error('Tipo di terapia non valido');
       }
 
       const response = await therapyService.create(dataToSave);
@@ -292,7 +299,17 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
     } catch (error: any) {
       console.error('Error saving therapy:', error);
       console.error('Error response:', error.response?.data);
-      setError(error.response?.data?.message || error.message || 'Errore nel salvataggio della terapia');
+      
+      // Se ci sono errori di validazione specifici, mostrali
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:', error.response.data.errors);
+        const errorMessages = error.response.data.errors.map((e: any) => 
+          typeof e === 'string' ? e : e.message || e.msg || JSON.stringify(e)
+        ).join(', ');
+        setError(`Errori di validazione: ${errorMessages}`);
+      } else {
+        setError(error.response?.data?.message || error.message || 'Errore nel salvataggio della terapia');
+      }
     } finally {
       setLoading(false);
     }
