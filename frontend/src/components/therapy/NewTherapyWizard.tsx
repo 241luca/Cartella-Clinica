@@ -93,16 +93,49 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
   const loadTherapyTypes = async () => {
     try {
       const response = await therapyService.getTherapyTypes();
-      setTherapyTypes(response.data.therapyTypes);
+      console.log('Therapy types response:', response);
+      
+      // Gestisci diverse strutture di risposta
+      let types = [];
+      if (response.data?.therapyTypes) {
+        types = response.data.therapyTypes;
+      } else if (response.data?.data) {
+        types = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        types = response.data;
+      } else if (response.therapyTypes) {
+        types = response.therapyTypes;
+      }
+      
+      console.log('Extracted therapy types:', types);
+      setTherapyTypes(types || []);
     } catch (error) {
       console.error('Errore caricamento tipi terapia:', error);
       setError('Errore nel caricamento dei tipi di terapia');
+      
+      // Usa tipi di terapia di fallback se l'API fallisce
+      const fallbackTypes = [
+        { id: '1', name: 'Magnetoterapia', code: 'MAGNETO', category: 'STRUMENTALE', description: 'Terapia con campi magnetici', defaultDuration: 30, defaultSessions: 10 },
+        { id: '2', name: 'Laser YAG', code: 'LASER_YAG', category: 'STRUMENTALE', description: 'Laser ad alta potenza', defaultDuration: 20, defaultSessions: 8 },
+        { id: '3', name: 'Laser 810+980', code: 'LASER_810_980', category: 'STRUMENTALE', description: 'Laser a doppia lunghezza d\'onda', defaultDuration: 20, defaultSessions: 8 },
+        { id: '4', name: 'Laser Scanner', code: 'LASER_SCAN', category: 'STRUMENTALE', description: 'Laser scanner automatico', defaultDuration: 15, defaultSessions: 10 },
+        { id: '5', name: 'Ultrasuoni', code: 'ULTRASUONI', category: 'STRUMENTALE', description: 'Terapia ad ultrasuoni', defaultDuration: 15, defaultSessions: 10 },
+        { id: '6', name: 'TENS', code: 'TENS', category: 'STRUMENTALE', description: 'Elettrostimolazione antalgica', defaultDuration: 30, defaultSessions: 10 },
+        { id: '7', name: 'Elettrostimolazione', code: 'ELETTROSTIM', category: 'STRUMENTALE', description: 'Stimolazione muscolare', defaultDuration: 30, defaultSessions: 12 },
+        { id: '8', name: 'Tecarsin', code: 'TECAR', category: 'STRUMENTALE', description: 'Tecarterapia', defaultDuration: 30, defaultSessions: 8 },
+        { id: '9', name: 'Massoterapia', code: 'MASSOTERAPIA', category: 'MANUALE', description: 'Massaggio terapeutico', defaultDuration: 45, defaultSessions: 10 },
+        { id: '10', name: 'Mobilizzazioni', code: 'MOBILIZZAZIONI', category: 'MANUALE', description: 'Mobilizzazione articolare', defaultDuration: 30, defaultSessions: 10 },
+        { id: '11', name: 'Limfaterapy', code: 'LIMFATERAPY', category: 'SPECIALE', description: 'Drenaggio linfatico', defaultDuration: 45, defaultSessions: 10 },
+        { id: '12', name: 'SIT', code: 'SIT', category: 'SPECIALE', description: 'Sistema infiltrativo transcutaneo', defaultDuration: 20, defaultSessions: 6 },
+        { id: '13', name: 'Tecalab', code: 'TECALAB', category: 'SPECIALE', description: 'Tecarterapia avanzata', defaultDuration: 40, defaultSessions: 8 }
+      ];
+      setTherapyTypes(fallbackTypes);
     }
   };
 
   // Filtra tipi per categoria
   const getFilteredTherapyTypes = () => {
-    if (!selectedCategory) return [];
+    if (!selectedCategory || !therapyTypes || therapyTypes.length === 0) return [];
     return therapyTypes.filter(t => t.category === selectedCategory);
   };
 
