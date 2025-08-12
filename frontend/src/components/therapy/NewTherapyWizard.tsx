@@ -87,21 +87,21 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
 
   // Carica i tipi di terapia
   useEffect(() => {
-    // Usa direttamente i tipi predefiniti per ora
+    // Usa direttamente i tipi predefiniti per ora con UUID validi
     const defaultTypes: TherapyType[] = [
-      { id: '1', name: 'Magnetoterapia', code: 'MAGNETO', category: 'STRUMENTALE', description: 'Terapia con campi magnetici', defaultDuration: 30, defaultSessions: 10 },
-      { id: '2', name: 'Laser YAG', code: 'LASER_YAG', category: 'STRUMENTALE', description: 'Laser ad alta potenza', defaultDuration: 20, defaultSessions: 8 },
-      { id: '3', name: 'Laser 810+980', code: 'LASER_810_980', category: 'STRUMENTALE', description: 'Laser a doppia lunghezza d\'onda', defaultDuration: 20, defaultSessions: 8 },
-      { id: '4', name: 'Laser Scanner', code: 'LASER_SCAN', category: 'STRUMENTALE', description: 'Laser scanner automatico', defaultDuration: 15, defaultSessions: 10 },
-      { id: '5', name: 'Ultrasuoni', code: 'ULTRASUONI', category: 'STRUMENTALE', description: 'Terapia ad ultrasuoni', defaultDuration: 15, defaultSessions: 10 },
-      { id: '6', name: 'TENS', code: 'TENS', category: 'STRUMENTALE', description: 'Elettrostimolazione antalgica', defaultDuration: 30, defaultSessions: 10 },
-      { id: '7', name: 'Elettrostimolazione', code: 'ELETTROSTIM', category: 'STRUMENTALE', description: 'Stimolazione muscolare', defaultDuration: 30, defaultSessions: 12 },
-      { id: '8', name: 'Tecarsin', code: 'TECAR', category: 'STRUMENTALE', description: 'Tecarterapia', defaultDuration: 30, defaultSessions: 8 },
-      { id: '9', name: 'Massoterapia', code: 'MASSOTERAPIA', category: 'MANUALE', description: 'Massaggio terapeutico', defaultDuration: 45, defaultSessions: 10 },
-      { id: '10', name: 'Mobilizzazioni', code: 'MOBILIZZAZIONI', category: 'MANUALE', description: 'Mobilizzazione articolare', defaultDuration: 30, defaultSessions: 10 },
-      { id: '11', name: 'Limfaterapy', code: 'LIMFATERAPY', category: 'SPECIALE', description: 'Drenaggio linfatico', defaultDuration: 45, defaultSessions: 10 },
-      { id: '12', name: 'SIT', code: 'SIT', category: 'SPECIALE', description: 'Sistema infiltrativo transcutaneo', defaultDuration: 20, defaultSessions: 6 },
-      { id: '13', name: 'Tecalab', code: 'TECALAB', category: 'SPECIALE', description: 'Tecarterapia avanzata', defaultDuration: 40, defaultSessions: 8 }
+      { id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', name: 'Magnetoterapia', code: 'MAGNETO', category: 'STRUMENTALE', description: 'Terapia con campi magnetici', defaultDuration: 30, defaultSessions: 10 },
+      { id: 'b2c3d4e5-f6a7-8901-bcde-f23456789012', name: 'Laser YAG', code: 'LASER_YAG', category: 'STRUMENTALE', description: 'Laser ad alta potenza', defaultDuration: 20, defaultSessions: 8 },
+      { id: 'c3d4e5f6-a7b8-9012-cdef-345678901234', name: 'Laser 810+980', code: 'LASER_810_980', category: 'STRUMENTALE', description: 'Laser a doppia lunghezza d\'onda', defaultDuration: 20, defaultSessions: 8 },
+      { id: 'd4e5f6a7-b8c9-0123-defa-456789012345', name: 'Laser Scanner', code: 'LASER_SCAN', category: 'STRUMENTALE', description: 'Laser scanner automatico', defaultDuration: 15, defaultSessions: 10 },
+      { id: 'e5f6a7b8-c9d0-1234-efab-567890123456', name: 'Ultrasuoni', code: 'ULTRASUONI', category: 'STRUMENTALE', description: 'Terapia ad ultrasuoni', defaultDuration: 15, defaultSessions: 10 },
+      { id: 'f6a7b8c9-d0e1-2345-fabc-678901234567', name: 'TENS', code: 'TENS', category: 'STRUMENTALE', description: 'Elettrostimolazione antalgica', defaultDuration: 30, defaultSessions: 10 },
+      { id: 'a7b8c9d0-e1f2-3456-abcd-789012345678', name: 'Elettrostimolazione', code: 'ELETTROSTIM', category: 'STRUMENTALE', description: 'Stimolazione muscolare', defaultDuration: 30, defaultSessions: 12 },
+      { id: 'b8c9d0e1-f2a3-4567-bcde-890123456789', name: 'Tecarsin', code: 'TECAR', category: 'STRUMENTALE', description: 'Tecarterapia', defaultDuration: 30, defaultSessions: 8 },
+      { id: 'c9d0e1f2-a3b4-5678-cdef-901234567890', name: 'Massoterapia', code: 'MASSOTERAPIA', category: 'MANUALE', description: 'Massaggio terapeutico', defaultDuration: 45, defaultSessions: 10 },
+      { id: 'd0e1f2a3-b4c5-6789-defa-012345678901', name: 'Mobilizzazioni', code: 'MOBILIZZAZIONI', category: 'MANUALE', description: 'Mobilizzazione articolare', defaultDuration: 30, defaultSessions: 10 },
+      { id: 'e1f2a3b4-c5d6-7890-efab-123456789012', name: 'Limfaterapy', code: 'LIMFATERAPY', category: 'SPECIALE', description: 'Drenaggio linfatico', defaultDuration: 45, defaultSessions: 10 },
+      { id: 'f2a3b4c5-d6e7-8901-fabc-234567890123', name: 'SIT', code: 'SIT', category: 'SPECIALE', description: 'Sistema infiltrativo transcutaneo', defaultDuration: 20, defaultSessions: 6 },
+      { id: 'a3b4c5d6-e7f8-9012-abcd-345678901234', name: 'Tecalab', code: 'TECALAB', category: 'SPECIALE', description: 'Tecarterapia avanzata', defaultDuration: 40, defaultSessions: 8 }
     ];
     
     setTherapyTypes(defaultTypes);
