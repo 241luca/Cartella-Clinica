@@ -20,12 +20,15 @@ import {
   type DashboardStats,
   type TodaySession,
 } from '../services/dashboardService';
+import NewTherapyWizard from '../components/therapy/NewTherapyWizard';
+import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [todaySessions, setTodaySessions] = useState<TodaySession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showTherapyWizard, setShowTherapyWizard] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -94,6 +97,13 @@ const Dashboard: React.FC = () => {
               >
                 <FileText className="w-4 h-4" />
                 Nuova Cartella
+              </button>
+              <button
+                onClick={() => setShowTherapyWizard(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm"
+              >
+                <Activity className="w-4 h-4" />
+                Nuova Terapia
               </button>
               <button
                 onClick={() => navigate('/calendar')}
@@ -369,7 +379,7 @@ const Dashboard: React.FC = () => {
                       Nuovo Paziente
                     </button>
                     <button
-                      onClick={() => navigate('/therapies/new')}
+                      onClick={() => setShowTherapyWizard(true)}
                       className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-medium transition-colors text-center"
                     >
                       Nuova Terapia
@@ -420,6 +430,17 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Therapy Wizard */}
+      <NewTherapyWizard
+        isOpen={showTherapyWizard}
+        onClose={() => setShowTherapyWizard(false)}
+        onSuccess={(therapy) => {
+          toast.success('Terapia creata con successo!');
+          loadDashboardData(); // Ricarica i dati della dashboard
+          setShowTherapyWizard(false);
+        }}
+      />
     </AppLayout>
   );
 };
