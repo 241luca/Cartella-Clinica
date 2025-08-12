@@ -244,7 +244,7 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       // Prepara i dati nel formato corretto per l'API
       const dataToSave = {
         clinicalRecordId: clinicalRecordId || selectedRecord?.id || formData.clinicalRecordId,
-        therapyTypeId: parseInt(selectedTherapyType?.id || formData.therapyTypeId), // Converti in numero
+        therapyTypeId: String(selectedTherapyType?.id || formData.therapyTypeId), // Mantieni come stringa
         prescribedSessions: parseInt(formData.prescribedSessions),
         startDate: formData.startDate,
         frequency: formData.frequency.toUpperCase(), // Assicurati che sia maiuscolo
@@ -267,8 +267,8 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       if (!dataToSave.clinicalRecordId) {
         throw new Error('Cartella clinica non selezionata');
       }
-      if (!dataToSave.therapyTypeId || isNaN(dataToSave.therapyTypeId)) {
-        throw new Error('Tipo di terapia non valido');
+      if (!dataToSave.therapyTypeId) {
+        throw new Error('Tipo di terapia non selezionato');
       }
 
       const response = await therapyService.create(dataToSave);
