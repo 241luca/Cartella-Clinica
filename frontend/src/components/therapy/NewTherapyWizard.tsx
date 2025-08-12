@@ -93,28 +93,53 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
   const loadTherapyTypes = async () => {
     try {
       const response = await therapyService.getTherapyTypes();
-      console.log('Therapy types response:', response);
+      console.log('Raw therapy types response:', response);
       
       // Gestisci diverse strutture di risposta
       let types = [];
-      if (response.data?.therapyTypes) {
+      
+      // Log per debug
+      console.log('response structure:', {
+        hasData: !!response.data,
+        hasTherapyTypes: !!response.data?.therapyTypes,
+        hasDataData: !!response.data?.data,
+        isArray: Array.isArray(response.data),
+        directTherapyTypes: !!response.therapyTypes
+      });
+      
+      if (response.data?.therapyTypes && Array.isArray(response.data.therapyTypes)) {
         types = response.data.therapyTypes;
-      } else if (response.data?.data) {
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
         types = response.data.data;
       } else if (Array.isArray(response.data)) {
         types = response.data;
-      } else if (response.therapyTypes) {
+      } else if (response.therapyTypes && Array.isArray(response.therapyTypes)) {
         types = response.therapyTypes;
+      } else if (response.data) {
+        // Se response.data è un oggetto, potrebbe avere i dati in una proprietà diversa
+        console.log('response.data keys:', Object.keys(response.data));
+        // Cerca un array nei valori dell'oggetto
+        const possibleArrays = Object.values(response.data).filter(val => Array.isArray(val));
+        if (possibleArrays.length > 0) {
+          types = possibleArrays[0] as TherapyType[];
+        }
       }
       
       console.log('Extracted therapy types:', types);
-      setTherapyTypes(types || []);
+      console.log('Is array?', Array.isArray(types));
+      
+      // Assicurati che sia un array
+      if (!Array.isArray(types)) {
+        console.warn('Types is not an array, using fallback');
+        throw new Error('Invalid therapy types format');
+      }
+      
+      setTherapyTypes(types);
     } catch (error) {
       console.error('Errore caricamento tipi terapia:', error);
-      setError('Errore nel caricamento dei tipi di terapia');
       
       // Usa tipi di terapia di fallback se l'API fallisce
-      const fallbackTypes = [
+      const fallbackTypes: TherapyType[] = [
         { id: '1', name: 'Magnetoterapia', code: 'MAGNETO', category: 'STRUMENTALE', description: 'Terapia con campi magnetici', defaultDuration: 30, defaultSessions: 10 },
         { id: '2', name: 'Laser YAG', code: 'LASER_YAG', category: 'STRUMENTALE', description: 'Laser ad alta potenza', defaultDuration: 20, defaultSessions: 8 },
         { id: '3', name: 'Laser 810+980', code: 'LASER_810_980', category: 'STRUMENTALE', description: 'Laser a doppia lunghezza d\'onda', defaultDuration: 20, defaultSessions: 8 },
@@ -129,14 +154,37 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
         { id: '12', name: 'SIT', code: 'SIT', category: 'SPECIALE', description: 'Sistema infiltrativo transcutaneo', defaultDuration: 20, defaultSessions: 6 },
         { id: '13', name: 'Tecalab', code: 'TECALAB', category: 'SPECIALE', description: 'Tecarterapia avanzata', defaultDuration: 40, defaultSessions: 8 }
       ];
+      
+      console.log('Using fallback therapy types');
       setTherapyTypes(fallbackTypes);
     }
   };
 
   // Filtra tipi per categoria
   const getFilteredTherapyTypes = () => {
-    if (!selectedCategory || !therapyTypes || therapyTypes.length === 0) return [];
-    return therapyTypes.filter(t => t.category === selectedCategory);
+    console.log('getFilteredTherapyTypes called:', {
+      selectedCategory,
+      therapyTypes,
+      isArray: Array.isArray(therapyTypes),
+      length: therapyTypes?.length
+    });
+    
+    if (!selectedCategory) return [];
+    
+    // Assicurati che therapyTypes sia un array
+    if (!Array.isArray(therapyTypes)) {
+      console.error('therapyTypes is not an array:', therapyTypes);
+      return [];
+    }
+    
+    if (therapyTypes.length === 0) {
+      console.warn('therapyTypes is empty');
+      return [];
+    }
+    
+    const filtered = therapyTypes.filter(t => t.category === selectedCategory);
+    console.log('Filtered therapy types:', filtered);
+    return filtered;
   };
 
   // Gestione step

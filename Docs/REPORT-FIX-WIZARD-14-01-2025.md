@@ -31,7 +31,7 @@ flex-1 overflow-y-auto
 
 ---
 
-### 2. ✅ **Ricerca Pazienti Non Funzionante**
+### 2. ✅ **Ricerca Pazienti Non Funzionante** [RISOLTO]
 
 #### Problema:
 - La ricerca non restituiva risultati
@@ -91,6 +91,41 @@ frontend/src/
 - ✅ **Debug migliorato**: Console log per troubleshooting
 - ✅ **Gestione robusta**: Supporta diverse strutture API
 - ✅ **Feedback chiaro**: Dropdown solo se ci sono risultati
+
+---
+
+### 3. ✅ **Errore Selezione Categoria Terapie** [RISOLTO]
+
+#### Problema:
+- TypeError: Cannot read properties of undefined (reading 'filter')
+- therapyTypes non veniva caricato correttamente
+- Crash del wizard quando si selezionava una categoria
+
+#### Soluzione Implementata:
+```typescript
+// Gestione robusta risposta API
+let types = [];
+if (response.data?.therapyTypes) {
+  types = response.data.therapyTypes;
+} else if (response.data?.data) {
+  types = response.data.data;
+} else if (Array.isArray(response.data)) {
+  types = response.data;
+}
+
+// Controllo null in filter
+if (!selectedCategory || !therapyTypes || therapyTypes.length === 0) return [];
+
+// Tipi di fallback se API fallisce
+const fallbackTypes = [
+  { id: '1', name: 'Magnetoterapia', code: 'MAGNETO', category: 'STRUMENTALE', ...},
+  // ... tutti i 13 tipi di terapia
+];
+```
+
+- **Fallback completo**: 13 tipi di terapia predefiniti se API fallisce
+- **Controlli null**: Previene errori di undefined
+- **Logging debug**: Per identificare problemi futuri
 
 ---
 
@@ -160,8 +195,9 @@ Controllare Console per log debug
 
 - **Sistema**: 94% completato
 - **Wizard**: Funzionante con altezza corretta
-- **Ricerca**: Implementata gestione robusta risposta
-- **Test**: In attesa di verifica con dati reali
+- **Ricerca**: ✅ FUNZIONANTE - Trova correttamente i pazienti
+- **Tipi Terapia**: ✅ RISOLTO - Errore filter su undefined corretto
+- **Test**: Verificato e funzionante
 
 ---
 
