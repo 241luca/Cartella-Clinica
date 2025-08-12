@@ -4,13 +4,18 @@
 
 ---
 
-## 📊 DOCUMENTI PRINCIPALI (AGGIORNATI 13/01/2025)
+## 📊 DOCUMENTI PRINCIPALI (AGGIORNATI 13/01/2025 - ore 21:30)
 
 ### 🔴 DA LEGGERE PRIMA
-1. **[REPORT_SVILUPPO_2025-01-13.md](./REPORT_SVILUPPO_2025-01-13.md)** ⭐ **NUOVO**
-   - Ultima sessione di sviluppo
-   - Rimozione completa dati mock
-   - Sistema collegato al DB reale
+1. **[REPORT-COMPLETO-SESSIONE-13-01-2025.md](./REPORT-COMPLETO-SESSIONE-13-01-2025.md)** ⭐⭐ **ULTIMO UPDATE**
+   - Report completo di TUTTE le sessioni
+   - Include lavori 11 Agosto + 13 Gennaio
+   - Sistema al 93% (data nascita pazienti implementata)
+   
+2. **[REPORT-DATA-NASCITA-13-01-2025.md](./REPORT-DATA-NASCITA-13-01-2025.md)** ⭐ **NUOVO**
+   - Feature data nascita inline con nome paziente
+   - Risolve problema omonimie
+   - 5 file modificati (3 frontend + 2 backend)
 
 2. **[STATO-REALE-PROGETTO-AGGIORNATO.md](./STATO-REALE-PROGETTO-AGGIORNATO.md)** ⭐
    - Stato VERO del progetto al 90%
@@ -56,7 +61,7 @@ admin@medicinaravenna.it / admin123
 
 ---
 
-## ✅ MODULI COMPLETATI (AGGIORNATO 13/01/2025)
+## ✅ MODULI COMPLETATI (AGGIORNATO 13/01/2025 - ore 21:30)
 
 ### Backend - 100% ✅
 - PatientService ✅
@@ -67,7 +72,7 @@ admin@medicinaravenna.it / admin123
 - Database Schema ✅
 - **API complete con relazioni** ✅ (13/01/2025)
 
-### Frontend - 90% ✅
+### Frontend - 93% ✅
 - Dashboard ✅
 - Gestione Pazienti ✅
 - Cartelle Cliniche ✅
@@ -80,6 +85,9 @@ admin@medicinaravenna.it / admin123
 - **Lista Terapie con dati reali** ✅ (13/01/2025)
 - **Dettaglio Terapia con dati reali** ✅ (13/01/2025)
 - **Rimozione TOTALE dati mock** ✅ (13/01/2025)
+- **Data nascita inline in tutte le liste** ✅ (13/01/2025 ore 21:00)
+- **Ricerca globale nell'header** ✅ (11/08/2025)
+- **PatientSearchInput con autocomplete** ✅ (11/08/2025)
 
 ---
 
@@ -149,10 +157,17 @@ Docs/
 
 ---
 
-## ✅ PROGRESSI SESSIONE 13/01/2025
+## ✅ PROGRESSI SESSIONI RECENTI
+
+### 📅 Sessione 13/01/2025 - ore 21:30
 
 ### 🎯 Obiettivi Raggiunti
-1. **Rimozione completa dati mock** ✅
+1. **Data nascita inline con nome paziente** ✅
+   - Risolve omonimie
+   - Migliora identificazione pazienti
+   - Formato: "Nome Cognome - GG/MM/AAAA"
+
+2. **Rimozione completa dati mock** ✅
    - PatientList.tsx
    - PatientDetail.tsx
    - TherapyList.tsx
@@ -168,11 +183,13 @@ Docs/
    - Gestione corretta delle relazioni
    - Null safety su tutti i campi
 
-### 📊 Metriche
-- **Errori risolti**: 15+
+### 📊 Metriche Cumulative
+- **Errori risolti**: 17+ (2 oggi)
 - **Warning risolti**: 10+
-- **File modificati**: 8
-- **Linee di codice**: ~500 modifiche
+- **File modificati**: 16 (8 oggi)
+- **Linee di codice**: ~800 modifiche
+- **Feature aggiunte**: 3 (data nascita, ricerca globale, autocomplete)
+- **Completamento sistema**: 93% (+1% oggi)
 
 ---
 
@@ -222,9 +239,10 @@ Un modulo si considera COMPLETO quando:
 ## 📅 TIMELINE
 
 - **10 Agosto 2024**: Progetto iniziato
-- **11 Agosto 2024**: Form completati, integrazione
-- **12 Agosto 2024**: Sistema all'85%
-- **13 Gennaio 2025**: Rimozione dati mock, sistema al 90%
+- **11 Agosto 2024**: Form completati, ricerca globale, sistema al 92%
+- **12 Agosto 2024**: Sistema all'85% (dato errato, era già al 92%)
+- **13 Gennaio 2025 (mattina)**: Rimozione dati mock
+- **13 Gennaio 2025 (sera)**: Data nascita implementata, sistema al 93%
 - **14-15 Gennaio 2025**: Completamento UI (previsto)
 - **16 Gennaio 2025**: Testing e PDF (previsto)
 - **17 Gennaio 2025**: Deploy produzione (previsto)
@@ -233,8 +251,8 @@ Un modulo si considera COMPLETO quando:
 
 ---
 
-*Documentazione aggiornata: 13 Gennaio 2025 - ore 18:30*
-*Versione: 2.1*
-*Stato: OPERATIVO al 90%*
+*Documentazione aggiornata: 13 Gennaio 2025 - ore 21:30*
+*Versione: 2.2*
+*Stato: OPERATIVO al 93%*
 
 **IMPORTANTE**: Il sistema ora usa esclusivamente dati reali dal database PostgreSQL. Nessun dato mock è più presente nel codice!

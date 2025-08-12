@@ -69,6 +69,7 @@ export class TherapyController {
                   firstName: true,
                   lastName: true,
                   fiscalCode: true,
+                  birthDate: true,
                 }
               }
             }

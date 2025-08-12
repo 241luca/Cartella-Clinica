@@ -46,6 +46,7 @@ export class ClinicalRecordController {
               firstName: true,
               lastName: true,
               fiscalCode: true,
+              birthDate: true,
             }
           },
           createdBy: {
