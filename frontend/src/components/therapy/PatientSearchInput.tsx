@@ -92,12 +92,38 @@ export const PatientSearchInput: React.FC<PatientSearchInputProps> = ({
     try {
       // Usa il metodo getAll con query di ricerca
       const response = await patientService.getAll({ search: searchQuery });
-      const patientsData = response.data?.data || response.data || [];
       
-      // NON filtrare ulteriormente - il backend dovrebbe già filtrare correttamente
+      // Gestisci diversi formati di risposta
+      let patientsData = [];
+      
+      // Caso 1: response.data.data.data (triplo annidamento)
+      if (response.data?.data?.data && Array.isArray(response.data.data.data)) {
+        patientsData = response.data.data.data;
+      }
+      // Caso 2: response.data.data (doppio annidamento)
+      else if (response.data?.data && Array.isArray(response.data.data)) {
+        patientsData = response.data.data;
+      }
+      // Caso 3: response.data è direttamente l'array
+      else if (Array.isArray(response.data)) {
+        patientsData = response.data;
+      }
+      // Caso 4: response è direttamente l'oggetto con i dati
+      else if (response.data) {
+        patientsData = response.data;
+      }
+      
+      console.log('Patients search response:', response);
+      console.log('Extracted patients data:', patientsData);
+      
+      // Assicurati che sia un array
+      if (!Array.isArray(patientsData)) {
+        patientsData = [];
+      }
+      
       // Limitiamo solo il numero di risultati visualizzati
       setPatients(patientsData.slice(0, 10));
-      setShowPatientDropdown(true);
+      setShowPatientDropdown(patientsData.length > 0);
     } catch (error) {
       console.error('Errore ricerca pazienti:', error);
       setPatients([]);
