@@ -241,22 +241,42 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
     setError('');
 
     try {
+      // Prepara i dati nel formato corretto per l'API
       const dataToSave = {
-        ...formData,
-        therapyTypeId: selectedTherapyType?.id,
         clinicalRecordId: clinicalRecordId || selectedRecord?.id || formData.clinicalRecordId,
+        therapyTypeId: selectedTherapyType?.id || formData.therapyTypeId,
+        prescribedSessions: parseInt(formData.prescribedSessions),
+        startDate: formData.startDate,
+        frequency: formData.frequency,
+        district: formData.district || null,
+        notes: formData.notes || null,
+        parameters: formData.parameters || {},
+        status: 'ACTIVE' // Aggiungi status di default
       };
 
+      console.log('Data to save:', dataToSave);
+      
+      // Valida i dati richiesti
+      if (!dataToSave.clinicalRecordId) {
+        throw new Error('Cartella clinica non selezionata');
+      }
+      if (!dataToSave.therapyTypeId) {
+        throw new Error('Tipo di terapia non selezionato');
+      }
+
       const response = await therapyService.create(dataToSave);
+      console.log('Save response:', response);
       
       if (onSuccess) {
         onSuccess(response.data);
       }
       
       // Reset e chiudi
-      setCurrentStep(1);
+      setCurrentStep(needsPatientSelection ? 0 : 1);
       setSelectedCategory('');
       setSelectedTherapyType(null);
+      setSelectedPatient(null);
+      setSelectedRecord(null);
       setFormData({
         clinicalRecordId: clinicalRecordId || '',
         therapyTypeId: '',
@@ -270,7 +290,9 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
       
       onClose();
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Errore nel salvataggio della terapia');
+      console.error('Error saving therapy:', error);
+      console.error('Error response:', error.response?.data);
+      setError(error.response?.data?.message || error.message || 'Errore nel salvataggio della terapia');
     } finally {
       setLoading(false);
     }
