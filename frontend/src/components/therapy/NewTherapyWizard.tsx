@@ -107,8 +107,8 @@ const NewTherapyWizard: React.FC<NewTherapyWizardProps> = ({
     setTherapyTypes(defaultTypes);
     console.log('Therapy types loaded:', defaultTypes.length, 'types');
     
-    // Prova comunque a caricare dall'API in background
-    loadTherapyTypes();
+    // NON chiamare loadTherapyTypes che sovrascrive con array vuoto
+    // loadTherapyTypes();
   }, []);
 
   const loadTherapyTypes = async () => {
